@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "931480688499",
+    "firebase_url": "https://smartkitch-89ca1.firebaseio.com",
+    "project_id": "smartkitch-89ca1",
+    "storage_bucket": "smartkitch-89ca1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:931480688499:android:d6cd3648cb26528d",
+        "android_client_info": {
+          "package_name": "com.example.smartkkitch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "931480688499-dus9hl23gdqc4pc2avpeudntrbrroldr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.smartkkitch",
+            "certificate_hash": "b63c69d832f8c9733c2f963ed41056ac193d65a0"
+          }
+        },
+        {
+          "client_id": "931480688499-vr3e7scb9c1ev0vfop26qj5br7rpq2f5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNmZzmYFfu3n8XdNSVoWml2IaHqY6jhss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "931480688499-vr3e7scb9c1ev0vfop26qj5br7rpq2f5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
