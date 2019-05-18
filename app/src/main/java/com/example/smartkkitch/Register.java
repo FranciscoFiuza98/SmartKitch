@@ -13,15 +13,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class Register extends AppCompatActivity {
 
-    private FirebaseAuth mAuth;
-
     EditText txtName, txtEmail, txtPassword, txtRepeatPassword;
-
     String name, email, password, repeatPassword;
     String TAG = "SmartKitch";
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +56,25 @@ public class Register extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                Toast.makeText(getApplicationContext(), "Account Registered Successfuly!", Toast.LENGTH_LONG).show();
+                                FirebaseUser user = mAuth.getCurrentUser();
 
-                                Intent intent = new Intent(getApplicationContext(), Login.class);
+                                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(name)
+                                        .build();
 
-                                startActivity(intent);
+                                user.updateProfile(profileUpdate)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Toast.makeText(getApplicationContext(), "Account Registered Successfuly!", Toast.LENGTH_LONG).show();
 
+                                                    Intent intent = new Intent(getApplicationContext(), Login.class);
+
+                                                    startActivity(intent);
+                                                }
+                                            }
+                                        });
 
                             } else {
                                 // If sign in fails, display a message to the user.

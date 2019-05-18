@@ -13,11 +13,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-
+        <activity android:name=".FirstFiveIngredients"></activity>
+        <activity android:name=".WelcomeScreen" />
         <activity
             android:name=".Register"
             android:parentActivityName=".Login" />
-
         <activity android:name=".Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
