@@ -1,6 +1,5 @@
 package com.example.smartkkitch;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -15,17 +14,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class Register extends AppCompatActivity {
 
-    private FirebaseAuth mAuth;
-
     EditText txtName, txtEmail, txtPassword, txtRepeatPassword;
-
-
-
     String name, email, password, repeatPassword;
     String TAG = "SmartKitch";
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +36,7 @@ public class Register extends AppCompatActivity {
         txtRepeatPassword = findViewById(R.id.txtRepeatPassword);
     }
 
-    public void Register(View view) {
+    public void registerUser(View view) {
         name = txtName.getText().toString();
         email = txtEmail.getText().toString();
         password = txtPassword.getText().toString();
@@ -50,28 +46,44 @@ public class Register extends AppCompatActivity {
 
             Toast toast = Toast.makeText(getApplicationContext(), "All fields are required!", Toast.LENGTH_LONG);
             toast.show();
-        }
-        if(!password.equals(repeatPassword)) {
+        } else if (!password.equals(repeatPassword)) {
 
             Toast toast = Toast.makeText(getApplicationContext(), "Passwords don't match!", Toast.LENGTH_LONG);
             toast.show();
-        }
-        else {
+        } else {
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                Toast.makeText(getApplicationContext(), "Account Registered Successfuly!", Toast.LENGTH_LONG).show();
+                                FirebaseUser user = mAuth.getCurrentUser();
+
+                                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(name)
+                                        .build();
+
+                                user.updateProfile(profileUpdate)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Toast.makeText(getApplicationContext(), "Account Registered Successfuly!", Toast.LENGTH_LONG).show();
+
+                                                    Intent intent = new Intent(getApplicationContext(), Login.class);
+
+                                                    startActivity(intent);
+                                                }
+                                            }
+                                        });
+
                             } else {
                                 // If sign in fails, display a message to the user.
-                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                Toast.makeText(getApplicationContext(), "Authentication failed.", Toast.LENGTH_LONG).show();
+                                Log.w(TAG, "createUserWithEmail:failure" + task.getException().getMessage());
+
+                                Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
                             }
                         }
                     });
         }
-
-        //Log.d(TAG, "Name: " + name + " Email: " + email + " Password: " + password + " Repeat Password: " + repeatPassword);
     }
 }

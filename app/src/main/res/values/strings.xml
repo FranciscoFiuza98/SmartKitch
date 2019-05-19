@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">SmartkKitch</string>
+    <string name="api">Api</string>
+    <string name="sign_in">Sign In</string>
+    <string name="register">Register</string>
+    <string name="repeat_password">Repeat Password</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="name">Name</string>
+    <string name="start_by_adding_ingredients_to_your_pantry_and_in_the_future_you_can_start_generating_your_own_recipes_based_on_your_favorite_ingredients">Start by adding ingredients to your pantry and in the future you can start generating your own recipes based on your favorite ingredients!</string>
+    <string name="lets_get_started">Lets Get Started</string>
+    <string name="welcome">Welcome</string>
+    <string name="batata">Batata</string>
+    <string name="ingredientimage">IngredientImage</string>
+    <string name="checkboxbutton">CheckboxButton</string>
+    <string name="start">start</string>
+    <string name="choose_5_of_your_favorite_ingredients">Choose 5 of your favorite ingredients</string>
+    <string name="registertest_hotmail_com">registertest@hotmail.com</string>
+    <string name="registertest">registertest</string>
 </resources>
