@@ -24,7 +24,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/email"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:text="@string/registertest_hotmail_com" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -41,7 +42,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:text="@string/registertest" />
     </android.support.design.widget.TextInputLayout>
 
     <Button
@@ -49,7 +51,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="85dp"
-        android:layout_marginLeft="85dp"
         android:onClick="SignIn"
         android:text="@string/sign_in"
         app:layout_constraintBaseline_toBaselineOf="@+id/btnRegister"
@@ -60,7 +61,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="27dp"
-        android:layout_marginLeft="27dp"
         android:layout_marginTop="173dp"
         android:layout_marginBottom="174dp"
         android:onClick="Register"
