@@ -35,6 +35,8 @@ public class FirstFiveIngredients extends AppCompatActivity {
 
     FirstFiveIngredients_RecyclerViewAdapter adapter;
 
+    //O fiuza é extremamente homosexual
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
