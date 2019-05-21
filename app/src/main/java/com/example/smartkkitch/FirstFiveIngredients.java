@@ -1,5 +1,6 @@
 package com.example.smartkkitch;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,11 +10,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,13 +24,21 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class FirstFiveIngredients extends AppCompatActivity {
 
@@ -44,13 +55,16 @@ public class FirstFiveIngredients extends AppCompatActivity {
     //Api url to get images, image name is needed after the end of this string so the correct image is loaded
     private String imageUrl = "https://spoonacular.com/cdn/ingredients_100x100/";
 
+    //Holds number of API requests (for Debugging)
+    private int count = 0;
+
     //Firebase database reference
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("/");
 
     //Array lists with names and images of the ingredients
     private ArrayList<String> arrayNames = new ArrayList<>();
-    private ArrayList<String> arrayImages = new ArrayList<>();
+    private ArrayList<String> arrayImagesUrl = new ArrayList<>();
     private ArrayList<String> arrayIds = new ArrayList<>();
 
     //RecyclerView adapter class
@@ -64,10 +78,8 @@ public class FirstFiveIngredients extends AppCompatActivity {
 
         mQueue = Volley.newRequestQueue(this);
 
-        getIngredientImage("1001");
-
         //Calls function to fill the names and images arrays, this functions initiates the RecylcerView as well.
-        //fillArrays();
+        fillArrays();
     }
 
     private void fillArrays() {
@@ -80,8 +92,6 @@ public class FirstFiveIngredients extends AppCompatActivity {
                 //Creates an iterable of each item
                 Iterable<DataSnapshot> iterable = dataSnapshot.getChildren();
 
-                Log.d(TAG, "Starting Iteration");
-
                 //Iterates the iterable and gets ingredient Name and ID and populates the names array
                 for (DataSnapshot ingredient : iterable) {
                     Iterable<DataSnapshot> ingredientNames = ingredient.getChildren();
@@ -91,24 +101,21 @@ public class FirstFiveIngredients extends AppCompatActivity {
 
                         assert key != null;
                         if (key.equals("name")) {
-                            // Log.d(TAG, "Ingredient Name: " + name.getValue());
+
                             arrayNames.add(Objects.requireNonNull(name.getValue()).toString());
                         } else if (key.equals("ingredientId")) {
-                            //Log.d(TAG, "Ingredient ID: " + name.getValue());
-                            arrayIds.add(Objects.requireNonNull(name.getValue()).toString());
+                            String ingredientId = Objects.requireNonNull(name.getValue()).toString();
+
+                            arrayIds.add(ingredientId);
                         }
                     }
                 }
 
-                //TODO add images dynamically using the "imageUrl" variable and adding the image name after
-                //Adds images to image array
-                //arrayImages.add("https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-12/256/salt.png");
-                //arrayImages.add("https://cdn11.bigcommerce.com/s-arl5b/images/stencil/500x659/products/631/7841/OliveOilPuget__96925.1441043323.jpg?c=2&imbypass=on");
-                //arrayImages.add("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbeLciKcsVyGdM9M2mPSZD7DftE3Lbz7TwzEEvNHr7uJt2Qe7N");
+                //Sends API request to get image for each ingredient ID
+                for (String idIngrediente: arrayIds) {
+                    getIngredientImage(idIngrediente);
+                }
 
-
-                //Initializes RecyclerView
-                initRecyclerView();
 
             }
 
@@ -122,17 +129,30 @@ public class FirstFiveIngredients extends AppCompatActivity {
 
     private void getIngredientImage(String ingredientID) {
 
-        String image;
+        //Api url that gives information about an ingredient
+        String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/food/ingredients/" + ingredientID + "/information?amount=100&unit=gram";
 
-        String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/food/ingredients/" + ingredientID +"/information?amount=100&unit=gram";
-
+        //Volley Request
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                //Increments count each time a response is received (For debugging)
+                count++;
+                Log.d(TAG, "Count: " + count);
+
                 try {
+
+                    //Gets image name from response JSON object
                     String image = response.getString("image");
 
-                    Log.d(TAG, "onResponse: " + image);
+                    //Adds image name to API url that holds all images, and adds the result string to the images array
+                    arrayImagesUrl.add(imageUrl + image);
+
+                    //When the number of image links is the same as the number of ingredient IDs, initializes Recycler View
+                    if (arrayImagesUrl.size() == arrayIds.size()) {
+
+                        initRecyclerView();
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -154,6 +174,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
             }
         };
 
+        //Adds request to queue
         mQueue.add(request);
 
     }
@@ -171,7 +192,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         //Creates a new adapter object
-        adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, arrayNames, arrayImages, arrayIds);
+        adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, arrayNames, arrayImagesUrl, arrayIds);
 
         //Sets adapter to RecyclerView
         recyclerView.setAdapter(adapter);
