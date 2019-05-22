@@ -62,6 +62,7 @@ public class Register extends AppCompatActivity {
                                         .setDisplayName(name)
                                         .build();
 
+                                assert user != null;
                                 user.updateProfile(profileUpdate)
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override

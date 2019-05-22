@@ -10,35 +10,29 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firestore.v1beta1.WriteResult;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class FirstFiveIngredients extends AppCompatActivity {
 
@@ -54,6 +48,9 @@ public class FirstFiveIngredients extends AppCompatActivity {
 
     //Api url to get images, image name is needed after the end of this string so the correct image is loaded
     private String imageUrl = "https://spoonacular.com/cdn/ingredients_100x100/";
+
+    private String userEmail;
+    private String userName;
 
     //Holds number of API requests (for Debugging)
     private int count = 0;
@@ -76,6 +73,16 @@ public class FirstFiveIngredients extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first_five_ingredients);
 
+        //Gets intent sent from previous activity and gets intent extras
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+
+        if (extras != null) {
+            userEmail = extras.getString("email");
+            userName = extras.getString("name");
+        }
+
+        //Queue used to send requests
         mQueue = Volley.newRequestQueue(this);
 
         //Calls function to fill the names and images arrays, this functions initiates the RecylcerView as well.
@@ -102,19 +109,38 @@ public class FirstFiveIngredients extends AppCompatActivity {
                         assert key != null;
                         if (key.equals("name")) {
 
-                            arrayNames.add(Objects.requireNonNull(name.getValue()).toString());
+                            String ingredientName = name.getValue().toString();
+                            arrayNames.add(ingredientName);
+
                         } else if (key.equals("ingredientId")) {
                             String ingredientId = Objects.requireNonNull(name.getValue()).toString();
-
                             arrayIds.add(ingredientId);
                         }
                     }
                 }
 
+                //Hardcoded images to save API requests
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/brown-onion.png");
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/egg.jpg");
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/bacon.jpg");
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/garlic.jpg");
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/yellow-bell-pepper.jpg");
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/carrots.jpg");
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/whole-chicken.jpg");
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/tomato.jpg");
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/beef-cubes-raw.png");
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/potatoes-yukon-gold.jpg");
+                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/shrimp.jpg");
+
+
+                initRecyclerView();
+
+
+
                 //Sends API request to get image for each ingredient ID
-                for (String idIngrediente: arrayIds) {
+                /*for (String idIngrediente: arrayIds) {
                     getIngredientImage(idIngrediente);
-                }
+                }*/
 
 
             }
@@ -203,12 +229,61 @@ public class FirstFiveIngredients extends AppCompatActivity {
         ArrayList<String> favoriteIngredientsNames = adapter.getFavoriteIngredientsNames();
         ArrayList<String> favoriteIngredientsIds = adapter.getFavoriteIngredientsIds();
 
-        //TODO change to 5 when possible
-        if (favoriteIngredientsNames.size() < 3) {
+        if (favoriteIngredientsNames.size() < 5) {
             Toast.makeText(this, "Choose at least 5 ingredients!", Toast.LENGTH_LONG).show();
         }
 
         Log.d(TAG, "Ingredients Names: " + favoriteIngredientsNames);
         Log.d(TAG, "Ingredients Ids: " + favoriteIngredientsIds);
+
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        final Map<String, Object> user= new HashMap<>();
+        user.put("name", userName);
+
+        firestore.collection("Users").document(userEmail)
+                .set(user)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "User added:" + user);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "onFailure: ", e);
+                    }
+                });
+
+        for (int i = 0; i < favoriteIngredientsNames.size(); i++) {
+            final Map<String, Object> favoriteIngredient = new HashMap<>();
+            favoriteIngredient.put("ingredientId", favoriteIngredientsIds.get(i));
+            favoriteIngredient.put("name", favoriteIngredientsNames.get(i));
+
+            firestore.collection("Users").document(userEmail).collection("FavoriteIngredients").document()
+                    .set(favoriteIngredient)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Favorite ingredient added: " + favoriteIngredient);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "onFailure: ", e);
+                        }
+                    });
+
+            if (i == favoriteIngredientsNames.size() - 1) {
+                Intent intent = new Intent(getApplicationContext(), Home.class);
+                Toast.makeText(getApplicationContext(), "Favorite ingredients saved!", Toast.LENGTH_LONG).show();
+                startActivity(intent);
+            }
+        }
+
+
+
     }
 }

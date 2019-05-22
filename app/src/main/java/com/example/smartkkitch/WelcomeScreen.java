@@ -13,8 +13,9 @@ public class WelcomeScreen extends AppCompatActivity {
     //Variables
     TextView txtWelcome;
 
-    String name;
-    String welcomeMessage;
+    private String name;
+    private String email;
+    private String welcomeMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,7 @@ public class WelcomeScreen extends AppCompatActivity {
         //Updates the welcome message with the user's name
         if (extras != null) {
             name = extras.getString("name");
+            email = extras.getString("email");
             welcomeMessage = "Welcome " + name + "!";
             txtWelcome.setText(welcomeMessage);
 
@@ -40,6 +42,8 @@ public class WelcomeScreen extends AppCompatActivity {
     //Starts next activity when "Lets get started" button is pressed
     public void getStarted(View view) {
         Intent intent = new Intent(getApplicationContext(), FirstFiveIngredients.class);
+        intent.putExtra("email", email);
+        intent.putExtra("name", name);
         startActivity(intent);
     }
 }

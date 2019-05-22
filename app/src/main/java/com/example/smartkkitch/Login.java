@@ -14,6 +14,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Objects;
 
 public class Login extends AppCompatActivity {
 
@@ -43,6 +48,7 @@ public class Login extends AppCompatActivity {
 
     }
 
+    //Function called on Sign In button click
     public void SignIn(View view) {
 
         //Gets values from the email and password inputs
@@ -56,13 +62,34 @@ public class Login extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         //If the sign up is successful makes a toast informing the user and starts the WelcomeScreen Activity
                         if (task.isSuccessful()) {
+
                             FirebaseUser user = mAuth.getCurrentUser();
+
+                            assert user != null;
+                            String name = user.getDisplayName();
                             Intent intent = new Intent(getApplicationContext(), WelcomeScreen.class);
-                            intent.putExtra("name", user.getDisplayName());
+                            intent.putExtra("name", name);
+                            intent.putExtra("email", email);
 
                             startActivity(intent);
 
-                            Toast.makeText(getApplicationContext(), user.getEmail(), Toast.LENGTH_LONG).show();
+                            //TODO finish checking if user exists in database
+                            /*FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+                            firestore.collection("Users")
+                                    .get()
+                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                                    Log.d(TAG, "onComplete: " + document);
+                                                }
+                                            } else {
+                                                Log.w(TAG, "Error getting documents.", task.getException());
+                                            }
+                                        }
+                                    });*/
 
                             //If the sign in was not successful, makes a toast for the user with the failure reason
                         } else {
@@ -73,6 +100,7 @@ public class Login extends AppCompatActivity {
                 });
     }
 
+    //Function called on Register button click
     public void Register(View view) {
         //Starts Register Activity
         Intent intent = new Intent(getApplicationContext(), Register.class);
