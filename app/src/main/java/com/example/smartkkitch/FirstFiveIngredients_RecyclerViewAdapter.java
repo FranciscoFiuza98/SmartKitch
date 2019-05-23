@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -29,8 +28,10 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
     private ArrayList<String> arrayNames;
     private ArrayList<String> arrayImages;
     private ArrayList<String> arrayIds;
-    private ArrayList<String> arrayFavoriteIngredientsNames = new ArrayList<>();
-    private ArrayList<String> getArrayFavoriteIngredientsIds = new ArrayList<>();
+    private ArrayList<String> firstFiveFavoriteIngredientNames = new ArrayList<>();
+    private ArrayList<String> firstFiveFavoriteIngredientIds = new ArrayList<>();
+    private ArrayList<String> homeFavoriteIngredientNames = new ArrayList<>();
+    private ArrayList<String> homeFavoriteIngredientIds = new ArrayList<>();
 
     //Activity context
     private Context context;
@@ -70,9 +71,22 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
         viewHolder.id.setText(arrayIds.get(i));
 
         //OnClick listener for each card
+        //Todo add ingredient to database and remove from recycler view in Home activity
         viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                String firstFiveIngredientsContext = "com.example.smartkkitch.FirstFiveIngredients";
+                String homeContext = "com.example.smartkkitch.Home";
+                String currentContext = context.toString().split("@")[0];
+
+                if (currentContext.equals(firstFiveIngredientsContext)) {
+                    Log.d(TAG, "First five");
+                }
+                if (currentContext.equals(homeContext)){
+                    Log.d(TAG, "Home");
+                }
+
                 //Toast.makeText(context, arrayIds.get(i), Toast.LENGTH_LONG).show();
 
                 //Gets bitmap of the current image of the button
@@ -91,14 +105,14 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
                     viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
 
                     //Removes ingredient name and id from the respective "favorite" arrays
-                    arrayFavoriteIngredientsNames.remove(arrayNames.get(i));
-                    getArrayFavoriteIngredientsIds.remove(arrayIds.get(i));
+                    firstFiveFavoriteIngredientNames.remove(arrayNames.get(i));
+                    firstFiveFavoriteIngredientIds.remove(arrayIds.get(i));
                 } else if (btnBitMap.sameAs(bitMapNotChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
 
                     //Adds ingredient name and id to the respective "favorite" arrays
-                    arrayFavoriteIngredientsNames.add(arrayNames.get(i));
-                    getArrayFavoriteIngredientsIds.add(arrayIds.get(i));
+                    firstFiveFavoriteIngredientNames.add(arrayNames.get(i));
+                    firstFiveFavoriteIngredientIds.add(arrayIds.get(i));
                 }
 
             }
@@ -113,11 +127,11 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
     }
 
     ArrayList<String> getFavoriteIngredientsNames() {
-        return arrayFavoriteIngredientsNames;
+        return firstFiveFavoriteIngredientNames;
     }
 
     ArrayList<String> getFavoriteIngredientsIds() {
-        return getArrayFavoriteIngredientsIds;
+        return firstFiveFavoriteIngredientIds;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

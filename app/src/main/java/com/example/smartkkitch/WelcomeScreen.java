@@ -45,5 +45,6 @@ public class WelcomeScreen extends AppCompatActivity {
         intent.putExtra("email", email);
         intent.putExtra("name", name);
         startActivity(intent);
+        finish();
     }
 }

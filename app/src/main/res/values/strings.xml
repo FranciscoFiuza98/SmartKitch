@@ -18,4 +18,7 @@
     <string name="registertest_hotmail_com">registertest@hotmail.com</string>
     <string name="registertest">registertest</string>
     <string name="home_sweet_home">Home Sweet Home</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
 </resources>

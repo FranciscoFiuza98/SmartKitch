@@ -67,6 +67,8 @@ public class FirstFiveIngredients extends AppCompatActivity {
     //RecyclerView adapter class
     FirstFiveIngredients_RecyclerViewAdapter adapter;
 
+    //TODO add search
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,7 +226,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    //Function called on button click
+    //Function called on Start button click
     public void start(View view) {
         ArrayList<String> favoriteIngredientsNames = adapter.getFavoriteIngredientsNames();
         ArrayList<String> favoriteIngredientsIds = adapter.getFavoriteIngredientsIds();
@@ -280,6 +282,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), Home.class);
                 Toast.makeText(getApplicationContext(), "Favorite ingredients saved!", Toast.LENGTH_LONG).show();
                 startActivity(intent);
+                finish();
             }
         }
 

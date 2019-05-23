@@ -24,6 +24,7 @@ public class Login extends AppCompatActivity {
 
     //Creates firebase object
     private FirebaseAuth mAuth;
+    private boolean userExists = false;
 
     //Creates EditText objects for email and password
     EditText txtEmail;
@@ -63,19 +64,12 @@ public class Login extends AppCompatActivity {
                         //If the sign up is successful makes a toast informing the user and starts the WelcomeScreen Activity
                         if (task.isSuccessful()) {
 
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            final FirebaseUser user = mAuth.getCurrentUser();
 
-                            assert user != null;
-                            String name = user.getDisplayName();
-                            Intent intent = new Intent(getApplicationContext(), WelcomeScreen.class);
-                            intent.putExtra("name", name);
-                            intent.putExtra("email", email);
+                            //Gets firestore instance
+                            FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-                            startActivity(intent);
-
-                            //TODO finish checking if user exists in database
-                            /*FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
+                            //Gets Users collection from firestore and checks if user exists in the collection
                             firestore.collection("Users")
                                     .get()
                                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -83,13 +77,38 @@ public class Login extends AppCompatActivity {
                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                             if (task.isSuccessful()) {
                                                 for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                                    Log.d(TAG, "onComplete: " + document);
+
+                                                    //Checks if user exists in collection, if exists starts Home activity
+                                                    String userEmail = document.getId();
+                                                    if (email.equals(userEmail)) {
+                                                        userExists = true;
+                                                        Intent intent = new Intent(getBaseContext(), Home.class);
+                                                        startActivity(intent);
+                                                        finish();
+                                                    }
+
                                                 }
+
+                                                //If user doesn't exist in firebase collection, starts WelcomeScreen activity
+                                                assert user != null;
+                                                if (!userExists) {
+                                                    String name = user.getDisplayName();
+                                                    Intent intent = new Intent(getApplicationContext(), WelcomeScreen.class);
+                                                    intent.putExtra("name", name);
+                                                    intent.putExtra("email", email);
+
+                                                    startActivity(intent);
+                                                    finish();
+                                                }
+
                                             } else {
                                                 Log.w(TAG, "Error getting documents.", task.getException());
                                             }
                                         }
-                                    });*/
+                                    });
+
+
+
 
                             //If the sign in was not successful, makes a toast for the user with the failure reason
                         } else {
@@ -105,5 +124,6 @@ public class Login extends AppCompatActivity {
         //Starts Register Activity
         Intent intent = new Intent(getApplicationContext(), Register.class);
         startActivity(intent);
+        finish();
     }
 }
