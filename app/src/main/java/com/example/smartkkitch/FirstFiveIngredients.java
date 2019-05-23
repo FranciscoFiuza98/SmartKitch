@@ -138,7 +138,6 @@ public class FirstFiveIngredients extends AppCompatActivity {
                 initRecyclerView();
 
 
-
                 //Sends API request to get image for each ingredient ID
                 /*for (String idIngrediente: arrayIds) {
                     getIngredientImage(idIngrediente);
@@ -210,6 +209,18 @@ public class FirstFiveIngredients extends AppCompatActivity {
     //Initializes Recycler View
     private void initRecyclerView() {
 
+        ArrayList<Ingredient> ingredients = new ArrayList<>();
+
+        for (int i = 0; i < arrayIds.size(); i++) {
+            String id = arrayIds.get(i);
+            String name = arrayNames.get(i);
+            String imageUrl = arrayImagesUrl.get(i);
+
+            Ingredient ingredient = new Ingredient(id, name, imageUrl);
+
+            ingredients.add(ingredient);
+        }
+
         //Creates a layout manager
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
 
@@ -220,7 +231,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         //Creates a new adapter object
-        adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, arrayNames, arrayImagesUrl, arrayIds);
+        adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, ingredients);
 
         //Sets adapter to RecyclerView
         recyclerView.setAdapter(adapter);
@@ -228,47 +239,23 @@ public class FirstFiveIngredients extends AppCompatActivity {
 
     //Function called on Start button click
     public void start(View view) {
-        ArrayList<String> favoriteIngredientsNames = adapter.getFavoriteIngredientsNames();
-        ArrayList<String> favoriteIngredientsIds = adapter.getFavoriteIngredientsIds();
+        ArrayList<Ingredient> favoriteIngredients = adapter.getFavoriteIngredients();
 
-        if (favoriteIngredientsNames.size() < 5) {
+        //Checks if user has chosen 5 ingredients, if not, makes a toast warning him
+        if (favoriteIngredients.size() < 5) {
             Toast.makeText(this, "Choose at least 5 ingredients!", Toast.LENGTH_LONG).show();
-        }
+        } else {
+            FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-        Log.d(TAG, "Ingredients Names: " + favoriteIngredientsNames);
-        Log.d(TAG, "Ingredients Ids: " + favoriteIngredientsIds);
+            final Map<String, Object> user = new HashMap<>();
+            user.put("name", userName);
 
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-        final Map<String, Object> user= new HashMap<>();
-        user.put("name", userName);
-
-        firestore.collection("Users").document(userEmail)
-                .set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "User added:" + user);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "onFailure: ", e);
-                    }
-                });
-
-        for (int i = 0; i < favoriteIngredientsNames.size(); i++) {
-            final Map<String, Object> favoriteIngredient = new HashMap<>();
-            favoriteIngredient.put("ingredientId", favoriteIngredientsIds.get(i));
-            favoriteIngredient.put("name", favoriteIngredientsNames.get(i));
-
-            firestore.collection("Users").document(userEmail).collection("FavoriteIngredients").document()
-                    .set(favoriteIngredient)
+            firestore.collection("Users").document(userEmail)
+                    .set(user)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Favorite ingredient added: " + favoriteIngredient);
+                            Log.d(TAG, "User added:" + user);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -278,14 +265,38 @@ public class FirstFiveIngredients extends AppCompatActivity {
                         }
                     });
 
-            if (i == favoriteIngredientsNames.size() - 1) {
-                Intent intent = new Intent(getApplicationContext(), Home.class);
-                Toast.makeText(getApplicationContext(), "Favorite ingredients saved!", Toast.LENGTH_LONG).show();
-                startActivity(intent);
-                finish();
+            for (Ingredient ingredient : favoriteIngredients) {
+                final Map<String, Object> favoriteIngredient = new HashMap<>();
+                favoriteIngredient.put("ingredientId", ingredient.getId());
+                favoriteIngredient.put("name", ingredient.getName());
+
+                firestore.collection("Users").document(userEmail).collection("FavoriteIngredients").document()
+                        .set(favoriteIngredient)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "Favorite ingredient added: " + favoriteIngredient);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "onFailure: ", e);
+                            }
+                        });
+
+                //Gets ID of last ingredient
+                String lastIngredientId = favoriteIngredients.get(favoriteIngredients.size() - 1).getId();
+
+                //If the current ingredient ID is the same as lastIngredientId, meaning that it is the last iteration of the ArrayList, starts Home activity
+                if (ingredient.getId() == lastIngredientId) {
+                    Intent intent = new Intent(getApplicationContext(), Home.class);
+                    Toast.makeText(getApplicationContext(), "Favorite ingredients saved!", Toast.LENGTH_LONG).show();
+                    startActivity(intent);
+                    finish();
+                }
             }
         }
-
 
 
     }
