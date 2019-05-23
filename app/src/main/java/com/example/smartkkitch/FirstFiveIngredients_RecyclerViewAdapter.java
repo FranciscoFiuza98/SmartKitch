@@ -24,12 +24,13 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
     //Tag for debugging
     private static final String TAG = "FirstFiveIngredients_Re";
 
-    //Arraylists with ingredient names and images
-    private ArrayList<String> arrayNames;
-    private ArrayList<String> arrayImages;
-    private ArrayList<String> arrayIds;
-    private ArrayList<String> firstFiveFavoriteIngredientNames = new ArrayList<>();
-    private ArrayList<String> firstFiveFavoriteIngredientIds = new ArrayList<>();
+    private String firstFiveIngredientsContext = "com.example.smartkkitch.FirstFiveIngredients";
+    private String homeContext = "com.example.smartkkitch.Home";
+    private String currentContext;
+
+    //ArrayLists that hold ingredients given in adapter constructor and favoriteIngredients
+    private ArrayList<Ingredient> ingredients;
+    private ArrayList<Ingredient> favoriteIngredients = new ArrayList<>();
     private ArrayList<String> homeFavoriteIngredientNames = new ArrayList<>();
     private ArrayList<String> homeFavoriteIngredientIds = new ArrayList<>();
 
@@ -37,11 +38,10 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
     private Context context;
 
     //RecyclerView adapater constructor
-    FirstFiveIngredients_RecyclerViewAdapter(Context context, ArrayList<String> arrayNames, ArrayList<String> arrayImages, ArrayList<String> arrayIds) {
-        this.arrayNames = arrayNames;
-        this.arrayImages = arrayImages;
-        this.arrayIds = arrayIds;
+    FirstFiveIngredients_RecyclerViewAdapter(Context context, ArrayList<Ingredient> ingredients) {
+        this.ingredients = ingredients;
         this.context = context;
+        this.currentContext = context.toString().split("@")[0];
     }
 
     @NonNull
@@ -58,62 +58,70 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
 
+        //Current ingredient of the iteration
+        final Ingredient ingredient = ingredients.get(i);
+
         //Adds ingredient image to each card
         Glide.with(context)
                 .asBitmap()
-                .load(arrayImages.get(i))
+                .load(ingredient.getImageUrl())
                 .into(viewHolder.image);
 
         //Adds ingredient name to each card
-        viewHolder.name.setText(arrayNames.get(i));
+        viewHolder.name.setText(ingredient.getName());
 
         //Adds ingredient id to the hidden id field in each card
-        viewHolder.id.setText(arrayIds.get(i));
+        viewHolder.id.setText(ingredient.getId());
 
         //OnClick listener for each card
-        //Todo add ingredient to database and remove from recycler view in Home activity
         viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String firstFiveIngredientsContext = "com.example.smartkkitch.FirstFiveIngredients";
-                String homeContext = "com.example.smartkkitch.Home";
-                String currentContext = context.toString().split("@")[0];
-
-                if (currentContext.equals(firstFiveIngredientsContext)) {
-                    Log.d(TAG, "First five");
+                //TODO add new favorite ingredient to database before removing from RecyclerView
+                if (currentContext.equals(homeContext)) {
+                    ingredients.remove(viewHolder.getAdapterPosition());
+                    notifyItemRemoved(viewHolder.getAdapterPosition());
+                    notifyItemRangeChanged(viewHolder.getAdapterPosition(), ingredients.size());
                 }
-                if (currentContext.equals(homeContext)){
-                    Log.d(TAG, "Home");
+                else {
+                    String firstFiveIngredientsContext = "com.example.smartkkitch.FirstFiveIngredients";
+                    String homeContext = "com.example.smartkkitch.Home";
+                    String currentContext = context.toString().split("@")[0];
+
+                    if (currentContext.equals(firstFiveIngredientsContext)) {
+                        Log.d(TAG, "First five");
+                    }
+                    if (currentContext.equals(homeContext)){
+                        Log.d(TAG, "Home");
+                    }
+
+                    //Toast.makeText(context, arrayIds.get(i), Toast.LENGTH_LONG).show();
+
+                    //Gets bitmap of the current image of the button
+                    final Bitmap btnBitMap = ((BitmapDrawable) viewHolder.btnCheckbox.getDrawable()).getBitmap();
+
+                    //Gets drawables for the "checked" and "notchecked" images
+                    Drawable checked = context.getResources().getDrawable(R.drawable.checked);
+                    Drawable notChecked = context.getResources().getDrawable(R.drawable.notchecked);
+
+                    //Gets bitmap for the "checked" and "notchecked" images
+                    final Bitmap bitMapChecked = ((BitmapDrawable) checked).getBitmap();
+                    final Bitmap bitMapNotChecked = ((BitmapDrawable) notChecked).getBitmap();
+
+                    //Checks which image is currently associated to the button, and changes it to the other one (if "checked" changes to "unchecked" and vice versa
+                    if (btnBitMap.sameAs(bitMapChecked)) {
+                        viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
+
+                        favoriteIngredients.remove(ingredients.get(i));
+
+                    } else if (btnBitMap.sameAs(bitMapNotChecked)) {
+                        viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+
+                        favoriteIngredients.add(ingredients.get(i));
+                    }
                 }
 
-                //Toast.makeText(context, arrayIds.get(i), Toast.LENGTH_LONG).show();
-
-                //Gets bitmap of the current image of the button
-                final Bitmap btnBitMap = ((BitmapDrawable) viewHolder.btnCheckbox.getDrawable()).getBitmap();
-
-                //Gets drawables for the "checked" and "notchecked" images
-                Drawable checked = context.getResources().getDrawable(R.drawable.checked);
-                Drawable notChecked = context.getResources().getDrawable(R.drawable.notchecked);
-
-                //Gets bitmap for the "checked" and "notchecked" images
-                final Bitmap bitMapChecked = ((BitmapDrawable) checked).getBitmap();
-                final Bitmap bitMapNotChecked = ((BitmapDrawable) notChecked).getBitmap();
-
-                //Checks which image is currently associated to the button, and changes it to the other one (if "checked" changes to "unchecked" and vice versa
-                if (btnBitMap.sameAs(bitMapChecked)) {
-                    viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
-
-                    //Removes ingredient name and id from the respective "favorite" arrays
-                    firstFiveFavoriteIngredientNames.remove(arrayNames.get(i));
-                    firstFiveFavoriteIngredientIds.remove(arrayIds.get(i));
-                } else if (btnBitMap.sameAs(bitMapNotChecked)) {
-                    viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
-
-                    //Adds ingredient name and id to the respective "favorite" arrays
-                    firstFiveFavoriteIngredientNames.add(arrayNames.get(i));
-                    firstFiveFavoriteIngredientIds.add(arrayIds.get(i));
-                }
 
             }
         });
@@ -123,15 +131,11 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
 
     @Override
     public int getItemCount() {
-        return arrayNames.size();
+        return ingredients.size();
     }
 
-    ArrayList<String> getFavoriteIngredientsNames() {
-        return firstFiveFavoriteIngredientNames;
-    }
-
-    ArrayList<String> getFavoriteIngredientsIds() {
-        return firstFiveFavoriteIngredientIds;
+    public ArrayList<Ingredient> getFavoriteIngredients() {
+        return favoriteIngredients;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

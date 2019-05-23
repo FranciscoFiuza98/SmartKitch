@@ -86,7 +86,6 @@ public class Home extends AppCompatActivity {
                 Log.d(TAG, "IDS: " + arrayIds.size());
                 Log.d(TAG, "Images " + arrayImagesUrl.size());
 
-
                 initRecyclerView();
 
             }
@@ -101,6 +100,19 @@ public class Home extends AppCompatActivity {
 
     private void initRecyclerView() {
 
+        ArrayList<Ingredient> arrayIngredients = new ArrayList<>();
+
+        for(int i = 0; i < arrayIds.size(); i++) {
+            String id = arrayIds.get(i);
+            String name = arrayNames.get(i);
+            String imageUrl = arrayImagesUrl.get(i);
+
+            Ingredient ingredient = new Ingredient(id, name, imageUrl);
+
+            arrayIngredients.add(ingredient);
+
+        }
+
         //Creates a layout manager
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
 
@@ -111,7 +123,7 @@ public class Home extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         //Creates a new adapter object
-        FirstFiveIngredients_RecyclerViewAdapter adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, arrayNames, arrayImagesUrl, arrayIds);
+        FirstFiveIngredients_RecyclerViewAdapter adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, arrayIngredients);
 
         //Sets adapter to RecyclerView
         recyclerView.setAdapter(adapter);
