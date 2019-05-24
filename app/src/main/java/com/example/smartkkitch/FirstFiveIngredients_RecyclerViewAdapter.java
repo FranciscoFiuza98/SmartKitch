@@ -1,7 +1,6 @@
 package com.example.smartkkitch;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -41,8 +40,6 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
     //ArrayLists that hold ingredients given in adapter constructor and favoriteIngredients
     private ArrayList<Ingredient> ingredients;
     private ArrayList<Ingredient> favoriteIngredients = new ArrayList<>();
-    private ArrayList<String> homeFavoriteIngredientNames = new ArrayList<>();
-    private ArrayList<String> homeFavoriteIngredientIds = new ArrayList<>();
 
     //Activity context
     private Context context;
@@ -192,7 +189,7 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
             //Gets references to the items in each card
             image = itemView.findViewById(R.id.imgImage);
             name = itemView.findViewById(R.id.txtName);
-            id = itemView.findViewById(R.id.txtId);
+            id = itemView.findViewById(R.id.txtRecipeId);
             btnCheckbox = itemView.findViewById(R.id.btnCheckbox);
             cardView = itemView.findViewById(R.id.cardView);
         }

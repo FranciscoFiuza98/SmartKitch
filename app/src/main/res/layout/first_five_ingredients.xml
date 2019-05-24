@@ -9,7 +9,7 @@
         android:id="@+id/cardView"
         android:layout_width="170dp"
         android:layout_height="153dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="10dp">
 
         <ImageView
@@ -46,7 +46,7 @@
             app:srcCompat="@drawable/notchecked" />
 
         <TextView
-            android:id="@+id/txtId"
+            android:id="@+id/txtRecipeId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
