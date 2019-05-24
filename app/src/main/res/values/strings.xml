@@ -21,4 +21,10 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
+    <string name="recommended_ingredients">Recommended Ingredients</string>
+    <string name="fragment_meat">FRAGMENT MEAT</string>
+    <string name="fragment_for_you">FRAGMENT FOR YOU</string>
+    <string name="for_you">for you</string>
+    <string name="meat">meat</string>
+
 </resources>

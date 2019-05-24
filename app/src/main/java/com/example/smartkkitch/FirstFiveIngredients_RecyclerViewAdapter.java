@@ -89,7 +89,6 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
             @Override
             public void onClick(View v) {
 
-                Log.d(TAG, "Click motherfucker");
 
                 if (currentContext.equals(homeContext) || currentContext.equals(applicationContext)) {
 

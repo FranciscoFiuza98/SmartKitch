@@ -3,6 +3,7 @@ package com.example.smartkkitch;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -35,27 +36,46 @@ public class Home extends AppCompatActivity {
 
     private static final String TAG = "Home";
 
+    //Firebase instances
     private FirebaseAuth mAuth;
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference myRef = database.getReference();
 
     //Arrays with ingredient information
     private ArrayList<String> arrayNames = new ArrayList<>();
     private ArrayList<String> arrayImagesUrl = new ArrayList<>();
     private ArrayList<String> arrayIds = new ArrayList<>();
 
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
-    DatabaseReference myRef = database.getReference();
+    //Fragment controllers
+    private SectionsStatePagerAdapter mSectionsStatePagerAdapter;
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        mAuth = FirebaseAuth.getInstance();
+        mSectionsStatePagerAdapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
+        mViewPager = findViewById(R.id.container);
 
-        Log.d(TAG, "On Create Context: " + getApplicationContext().toString());
+        setupViewPager(mViewPager);
+
+        mAuth = FirebaseAuth.getInstance();
 
         fillArrays();
 
+
+    }
+
+    public void setViewPager(int fragmentNumber) {
+        mViewPager.setCurrentItem(fragmentNumber);
+    }
+
+    private void setupViewPager(ViewPager viewPager) {
+        SectionsStatePagerAdapter adapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new FragmentForYou(), "For You"); // index 0
+        adapter.addFragment(new FragmentMeat(), "Meat"); //      index 1
+        viewPager.setAdapter(adapter);
 
     }
 

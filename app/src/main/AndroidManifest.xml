@@ -13,10 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".Home" />
         <activity android:name=".FirstFiveIngredients" />
         <activity android:name=".WelcomeScreen" />

@@ -171,7 +171,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 //Increments count each time a response is received (For debugging)
                 count++;
-                Log.d(TAG, "Count: " + count);
+                Log.d(TAG, "Api Requests: " + count);
 
                 try {
 
