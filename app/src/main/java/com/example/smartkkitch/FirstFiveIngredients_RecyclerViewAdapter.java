@@ -1,6 +1,7 @@
 package com.example.smartkkitch;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -14,10 +15,17 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapter<FirstFiveIngredients_RecyclerViewAdapter.ViewHolder> {
 
@@ -26,8 +34,10 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
 
     private String firstFiveIngredientsContext = "com.example.smartkkitch.FirstFiveIngredients";
     private String homeContext = "com.example.smartkkitch.Home";
+    private String applicationContext = "android.app.Application";
     private String currentContext;
 
+    private FirebaseUser currentUser;
     //ArrayLists that hold ingredients given in adapter constructor and favoriteIngredients
     private ArrayList<Ingredient> ingredients;
     private ArrayList<Ingredient> favoriteIngredients = new ArrayList<>();
@@ -38,10 +48,11 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
     private Context context;
 
     //RecyclerView adapater constructor
-    FirstFiveIngredients_RecyclerViewAdapter(Context context, ArrayList<Ingredient> ingredients) {
+    FirstFiveIngredients_RecyclerViewAdapter(Context context, ArrayList<Ingredient> ingredients, FirebaseUser currentUser) {
         this.ingredients = ingredients;
         this.context = context;
         this.currentContext = context.toString().split("@")[0];
+        this.currentUser = currentUser;
     }
 
     @NonNull
@@ -78,23 +89,52 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
             @Override
             public void onClick(View v) {
 
-                //TODO add new favorite ingredient to database before removing from RecyclerView
-                if (currentContext.equals(homeContext)) {
+                Log.d(TAG, "Click motherfucker");
+
+                if (currentContext.equals(homeContext) || currentContext.equals(applicationContext)) {
+
+                    //Ingredient clicked
+                    final Ingredient ingredient = ingredients.get(viewHolder.getAdapterPosition());
+                    String userEmail = currentUser.getEmail();
+                    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+                    //Ingredient clicked HashMap object containing ingredient name and ID
+                    final Map<String, Object> favoriteIngredient = new HashMap<>();
+                    favoriteIngredient.put("ingredientId", ingredient.getId());
+                    favoriteIngredient.put("name", ingredient.getName());
+
                     ingredients.remove(viewHolder.getAdapterPosition());
                     notifyItemRemoved(viewHolder.getAdapterPosition());
                     notifyItemRangeChanged(viewHolder.getAdapterPosition(), ingredients.size());
-                }
-                else {
-                    String firstFiveIngredientsContext = "com.example.smartkkitch.FirstFiveIngredients";
-                    String homeContext = "com.example.smartkkitch.Home";
-                    String currentContext = context.toString().split("@")[0];
 
-                    if (currentContext.equals(firstFiveIngredientsContext)) {
-                        Log.d(TAG, "First five");
-                    }
-                    if (currentContext.equals(homeContext)){
-                        Log.d(TAG, "Home");
-                    }
+                    //Adds ingredient to database
+                    assert userEmail != null;
+                    firestore.collection("Users").document(userEmail).collection("FavoriteIngredients").document()
+                            .set(favoriteIngredient)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+
+                                    Toast.makeText(context, "" + ingredient.getName() + " added to favorite ingredients!", Toast.LENGTH_LONG).show();
+                                }
+                            })
+                            //TODO Find a way to force error to test ingredient add again to the Recycler View
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+
+                                    ingredients.add(ingredient);
+                                    notifyItemInserted(viewHolder.getAdapterPosition());
+                                    notifyItemRangeChanged(viewHolder.getAdapterPosition(), ingredients.size());
+
+                                    Log.w(TAG, "onFailure: ", e);
+                                    Toast.makeText(context, "Something went wrong", Toast.LENGTH_LONG).show();
+                                }
+                            });
+
+
+                }
+                else if (currentContext.equals(firstFiveIngredientsContext)){
 
                     //Toast.makeText(context, arrayIds.get(i), Toast.LENGTH_LONG).show();
 
@@ -134,7 +174,7 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
         return ingredients.size();
     }
 
-    public ArrayList<Ingredient> getFavoriteIngredients() {
+    ArrayList<Ingredient> getFavoriteIngredients() {
         return favoriteIngredients;
     }
 

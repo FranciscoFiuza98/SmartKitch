@@ -18,6 +18,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,6 +43,8 @@ public class FirstFiveIngredients extends AppCompatActivity {
 
     //RequestQueue object used to make HTTP requests
     private RequestQueue mQueue;
+
+    private FirebaseAuth mAuth;
 
     //Header variables used in the RapidApi requests
     private String apiHost = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com";
@@ -74,6 +78,8 @@ public class FirstFiveIngredients extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first_five_ingredients);
+
+        mAuth = FirebaseAuth.getInstance();
 
         //Gets intent sent from previous activity and gets intent extras
         Intent intent = getIntent();
@@ -111,7 +117,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
                         assert key != null;
                         if (key.equals("name")) {
 
-                            String ingredientName = name.getValue().toString();
+                            String ingredientName = Objects.requireNonNull(name.getValue()).toString();
                             arrayNames.add(ingredientName);
 
                         } else if (key.equals("ingredientId")) {
@@ -209,6 +215,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
     //Initializes Recycler View
     private void initRecyclerView() {
 
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         ArrayList<Ingredient> ingredients = new ArrayList<>();
 
         for (int i = 0; i < arrayIds.size(); i++) {
@@ -231,7 +238,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         //Creates a new adapter object
-        adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, ingredients);
+        adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, ingredients, currentUser);
 
         //Sets adapter to RecyclerView
         recyclerView.setAdapter(adapter);
@@ -289,7 +296,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
                 String lastIngredientId = favoriteIngredients.get(favoriteIngredients.size() - 1).getId();
 
                 //If the current ingredient ID is the same as lastIngredientId, meaning that it is the last iteration of the ArrayList, starts Home activity
-                if (ingredient.getId() == lastIngredientId) {
+                if (ingredient.getId().equals(lastIngredientId)) {
                     Intent intent = new Intent(getApplicationContext(), Home.class);
                     Toast.makeText(getApplicationContext(), "Favorite ingredients saved!", Toast.LENGTH_LONG).show();
                     startActivity(intent);

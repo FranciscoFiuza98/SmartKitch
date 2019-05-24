@@ -17,6 +17,7 @@ public class WelcomeScreen extends AppCompatActivity {
     private String email;
     private String welcomeMessage;
 
+    //TODO check if user is authenticated -> ALL ACTIVITIES
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
