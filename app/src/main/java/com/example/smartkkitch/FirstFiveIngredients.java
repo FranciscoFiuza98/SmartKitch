@@ -165,6 +165,12 @@ public class FirstFiveIngredients extends AppCompatActivity {
         //Api url that gives information about an ingredient
         String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/food/ingredients/" + ingredientID + "/information?amount=100&unit=gram";
 
+        /*TODO
+            Create collection in database that saves the ingredient information to save API requests:
+                - On initRecyclerView, after the ingredient objects have been created, iterate over the ingredients list and check if it exists in IngredientInformation collection, if not, add the ingredient information to the collection.
+                - During the iteration that calls the getIngredientImage function, check for each ingredient if it exists in the database, if exists, get ingredient information from database, if not, call getIngredientImage function
+                ----------------------------------------------------------------------------------------DO THE SAME OR SIMILAR TO RECIPES IN HOME ACTIVITY-----------------------------------------------------------------------------------
+        */
         //Volley Request
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -218,6 +224,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         ArrayList<Ingredient> ingredients = new ArrayList<>();
 
+        //Iterates over IDs, Names and ImageUrls arrays, creates an Ingredient object with the information and adds the object to ingredients array
         for (int i = 0; i < arrayIds.size(); i++) {
             String id = arrayIds.get(i);
             String name = arrayNames.get(i);
@@ -228,16 +235,10 @@ public class FirstFiveIngredients extends AppCompatActivity {
             ingredients.add(ingredient);
         }
 
-        //Creates a layout manager
+        //Creates layout manager and adapter and sets them to the RecyclerView
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
-
-        //Gets RecyclerView instance from View
         RecyclerView recyclerView = findViewById(R.id.recyclerVIew);
-
-        //Sets layout manager to the recycler view
         recyclerView.setLayoutManager(layoutManager);
-
-        //Creates a new adapter object
         adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, ingredients, currentUser);
 
         //Sets adapter to RecyclerView
@@ -246,6 +247,8 @@ public class FirstFiveIngredients extends AppCompatActivity {
 
     //Function called on Start button click
     public void start(View view) {
+
+        //TODO Add add a number of likes to each ingredient favorited to the ingredients in the IngredientInformation collection in the database to show more relevant ingredients in the Home Activity
         ArrayList<Ingredient> favoriteIngredients = adapter.getFavoriteIngredients();
 
         //Checks if user has chosen 5 ingredients, if not, makes a toast warning him
@@ -257,6 +260,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
             final Map<String, Object> user = new HashMap<>();
             user.put("name", userName);
 
+            //Adds user to the Users collection in the database
             firestore.collection("Users").document(userEmail)
                     .set(user)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -272,6 +276,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
                         }
                     });
 
+            //Adds user's favorite ingredients to his FavoriteIngredients collection in the database
             for (Ingredient ingredient : favoriteIngredients) {
                 final Map<String, Object> favoriteIngredient = new HashMap<>();
                 favoriteIngredient.put("ingredientId", ingredient.getId());

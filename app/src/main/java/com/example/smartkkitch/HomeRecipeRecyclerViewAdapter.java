@@ -1,6 +1,7 @@
 package com.example.smartkkitch;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -20,17 +21,22 @@ import java.util.ArrayList;
 
 public class HomeRecipeRecyclerViewAdapter extends RecyclerView.Adapter<HomeRecipeRecyclerViewAdapter.ViewHolder>{
 
+    //Debugging tag
     private static final String TAG = "HomeRecipeRecyclerViewA";
 
+    //Recipe list given in constructor
     private ArrayList<Recipe> mRecipes;
 
+    //Context given in constructor
     private Context context;
 
+    //Constructor
     public HomeRecipeRecyclerViewAdapter(Context context, ArrayList<Recipe> mRecipes) {
         this.mRecipes = mRecipes;
         this.context = context;
     }
 
+    //Creates View object with the recipe layout and activity context and returns it
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -41,33 +47,45 @@ public class HomeRecipeRecyclerViewAdapter extends RecyclerView.Adapter<HomeReci
         return new ViewHolder(view);
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
 
+    //Creation of evey card
+    @Override
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
+
+        //Gets Recipe object
         final Recipe recipe = mRecipes.get(i);
 
+        //Fills image
         Glide.with(context)
                 .asBitmap()
                 .load(recipe.getImageUrl())
                 .into(viewHolder.imgRecipeImage);
 
+        //Sets recipe name and ID
         viewHolder.txtRecipeName.setText(recipe.getName());
         viewHolder.txtRecipeId.setText(recipe.getId());
 
+        //Criates OnClickListener for each card that starts the Recipe Activity
         viewHolder.recipeCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "Clicked: " + recipe);
+                Intent intent = new Intent(context, RecipeActivity.class);
+                intent.putExtra("recipeId", recipe.getId());
+                intent.putExtra("recipeImage", recipe.getImageUrl());
+
+                context.startActivity(intent);
             }
         });
 
     }
 
+    //Returns adapter item count
     @Override
     public int getItemCount() {
         return mRecipes.size();
     }
 
+    //Card structure
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         ImageView imgRecipeImage;

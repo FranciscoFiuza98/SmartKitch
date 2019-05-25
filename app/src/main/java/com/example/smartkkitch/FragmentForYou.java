@@ -4,10 +4,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +18,7 @@ import java.util.Objects;
 public class FragmentForYou extends Fragment{
     private static final String TAG = "FragmentForYou";
 
+    //Lists for recipe information and Recipe object
     private ArrayList<String> mArrayRecipeIds = new ArrayList<>();
     private ArrayList<String> mArrayRecipeNames = new ArrayList<>();
     private ArrayList<String> mArrayRecipeImageUrls = new ArrayList<>();
@@ -35,6 +34,8 @@ public class FragmentForYou extends Fragment{
         Button btnMeat = view.findViewById(R.id.btnMeat);
         RecyclerView recipeRecyclerView = view.findViewById(R.id.recipeRecyclerView);
 
+
+        //TODO Get recipe data from API && Create collection in database that saves the recipe information to save API requests
         //Fills Recipe IDs array
         mArrayRecipeIds.add("556768");
         mArrayRecipeIds.add("855089");
@@ -67,6 +68,7 @@ public class FragmentForYou extends Fragment{
             mRecipes.add(recipe);
         }
 
+        //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recipeRecyclerView.setLayoutManager(layoutManager);
         HomeRecipeRecyclerViewAdapter adapter = new HomeRecipeRecyclerViewAdapter(getActivity(), mRecipes);

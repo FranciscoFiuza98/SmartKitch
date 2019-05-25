@@ -114,7 +114,7 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
                                     Toast.makeText(context, "" + ingredient.getName() + " added to favorite ingredients!", Toast.LENGTH_LONG).show();
                                 }
                             })
-                            //TODO Find a way to force error to test ingredient add again to the Recycler View
+                            //TODO Find a way to force error to test the ingredient addition to the Recycler View
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
