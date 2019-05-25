@@ -16,7 +16,7 @@
             android:id="@+id/imgImage"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_alignTop="@id/txtName"
+            android:layout_alignTop="@id/txtRecipeName"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
             android:contentDescription="@string/ingredientimage"
@@ -46,7 +46,7 @@
             app:srcCompat="@drawable/notchecked" />
 
         <TextView
-            android:id="@+id/txtRecipeId"
+            android:id="@+id/txtId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"

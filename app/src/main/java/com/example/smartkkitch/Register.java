@@ -30,7 +30,7 @@ public class Register extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        txtName = findViewById(R.id.txtName);
+        txtName = findViewById(R.id.txtRecipeName);
         txtEmail = findViewById(R.id.txtEmail);
         txtPassword = findViewById(R.id.txtPassword);
         txtRepeatPassword = findViewById(R.id.txtRepeatPassword);

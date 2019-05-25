@@ -189,7 +189,7 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
             //Gets references to the items in each card
             image = itemView.findViewById(R.id.imgImage);
             name = itemView.findViewById(R.id.txtName);
-            id = itemView.findViewById(R.id.txtRecipeId);
+            id = itemView.findViewById(R.id.txtId);
             btnCheckbox = itemView.findViewById(R.id.btnCheckbox);
             cardView = itemView.findViewById(R.id.cardView);
         }

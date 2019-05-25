@@ -26,5 +26,8 @@
     <string name="fragment_for_you">FRAGMENT FOR YOU</string>
     <string name="for_you">for you</string>
     <string name="meat">meat</string>
+    <string name="recipe_image">Recipe Image</string>
+    <string name="recipe_name">Recipe Name</string>
+    <string name="_5">5</string>
 
 </resources>
