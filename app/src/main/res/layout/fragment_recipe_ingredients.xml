@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FragmentRecipeIngredients">
+
+    <TextView
+        android:id="@+id/txtServings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txtSimilarRecipes"
+        android:layout_alignStart="@id/txtSimilarRecipes"
+        android:layout_alignParentEnd="false"
+        android:layout_marginTop="25dp"
+        android:text="@string/_4_servings" />
+
+    <ImageView
+        android:id="@+id/imgServings"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@id/txtSimilarRecipes"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:layout_toStartOf="@id/txtServings"
+        android:contentDescription="@string/servings_icon"
+        android:src="@android:drawable/sym_def_app_icon" />
+
+    <ImageView
+        android:id="@+id/imgTime"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@id/txtIngredients"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:contentDescription="@string/clock_icon"
+        android:src="@mipmap/ic_launcher_round" />
+
+    <TextView
+        android:id="@+id/txtTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txtIngredients"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="25dp"
+        android:layout_toEndOf="@id/imgTime"
+        android:text="@string/_30_min" />
+
+    <TextView
+        android:id="@+id/txtIngredients"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="50dp"
+        android:layout_toStartOf="@id/txtPreparation"
+        android:soundEffectsEnabled="false"
+        android:text="@string/ingredients"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtPreparation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+        android:text="@string/preparation"
+        android:textColor="#000000"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/txtSimilarRecipes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_toEndOf="@id/txtPreparation"
+        android:text="@string/similar"
+        android:textColor="#000000"
+        android:textSize="16sp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fragmentIngredientsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/imgTime"
+        android:layout_marginTop="20dp" />
+</RelativeLayout>

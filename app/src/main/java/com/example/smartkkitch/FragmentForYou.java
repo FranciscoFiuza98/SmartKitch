@@ -35,7 +35,7 @@ public class FragmentForYou extends Fragment{
         RecyclerView recipeRecyclerView = view.findViewById(R.id.recipeRecyclerView);
 
 
-        //TODO Get recipe data from API && Create collection in database that saves the recipe information to save API requests
+        //TODO Get recipe data from API && Create collection in database that saves the recipe information including the ingredients to save API requests
         //Fills Recipe IDs array
         mArrayRecipeIds.add("556768");
         mArrayRecipeIds.add("855089");

@@ -29,5 +29,19 @@
     <string name="recipe_image">Recipe Image</string>
     <string name="recipe_name">Recipe Name</string>
     <string name="_5">5</string>
+    <string name="save_recipe">Save Recipe</string>
+    <string name="textview">TextView</string>
+
+    <string name="preparation">Preparation</string>
+    <string name="ingredients"><u>Ingredients</u></string>
+    <string name="similar">Similar</string>
+    <string name="ingredient_name">Ingredient Name</string>
+    <string name="_100_g">100 g</string>
+    <string name="_30_min">30 min</string>
+    <string name="clock_icon">clock icon</string>
+    <string name="_4_servings">4 Servings</string>
+    <string name="servings_icon">Servings Icon</string>
+    <string name="_100">100</string>
+    <string name="g">g</string>
 
 </resources>

@@ -9,11 +9,46 @@
     <ImageView
         android:id="@+id/imgRecipeImage"
         android:layout_width="0dp"
-        android:layout_height="250dp"
+        android:layout_height="260dp"
         android:layout_marginTop="1dp"
+        android:layout_marginBottom="70dp"
+        android:contentDescription="@string/recipe_image"
         android:scaleType="fitXY"
+        app:layout_constraintBottom_toTopOf="@+id/recipeIngredientsPager"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <Button
+        android:id="@+id/btnSaveRecipe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/save_recipe"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgRecipeImage" />
+
+    <TextView
+        android:id="@+id/txtRecipeName"
+        android:layout_width="216dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="14dp"
+        android:text="@string/textview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgRecipeImage" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/recipeIngredientsPager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgRecipeImage" />
 </android.support.constraint.ConstraintLayout>

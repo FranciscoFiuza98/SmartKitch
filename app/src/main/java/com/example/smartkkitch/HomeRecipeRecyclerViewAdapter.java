@@ -72,6 +72,7 @@ public class HomeRecipeRecyclerViewAdapter extends RecyclerView.Adapter<HomeReci
                 Intent intent = new Intent(context, RecipeActivity.class);
                 intent.putExtra("recipeId", recipe.getId());
                 intent.putExtra("recipeImage", recipe.getImageUrl());
+                intent.putExtra("recipeName", recipe.getName());
 
                 context.startActivity(intent);
             }
