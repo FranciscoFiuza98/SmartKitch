@@ -1,6 +1,5 @@
 package com.example.smartkkitch;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,12 +22,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,9 +51,15 @@ public class FragmentRecipeIngredients extends Fragment {
 
     private RecyclerView mRecyclerView;
 
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
 
         //Inflates Recipe Ingredient Fragment layout and adds it to the view
         View view = inflater.inflate(R.layout.fragment_recipe_ingredients, container, false);
@@ -88,7 +92,6 @@ public class FragmentRecipeIngredients extends Fragment {
                                 getRecipeIngredients(recipe);
 
                             }else {
-                                //TODO Add ingredients to array in order to list them in the RecyclerView
                                 for (QueryDocumentSnapshot document: result) {
                                     Map<String, Object> ingredient = document.getData();
 
@@ -145,7 +148,7 @@ public class FragmentRecipeIngredients extends Fragment {
         return view;
     }
 
-    private void getRecipeIngredients(final Recipe recipe) {
+    private void   getRecipeIngredients(final Recipe recipe) {
 
         //Url for API request
         String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/" + recipe.getId() + "/information";
@@ -238,7 +241,7 @@ public class FragmentRecipeIngredients extends Fragment {
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(layoutManager);
-        FragmentRecipeIngredientsAdapter adapter = new FragmentRecipeIngredientsAdapter(getActivity(), arrayIngredients);
+        FragmentRecipeIngredientsAdapter adapter = new FragmentRecipeIngredientsAdapter(getActivity(), arrayIngredients, user);
         mRecyclerView.setAdapter(adapter);
 
     }

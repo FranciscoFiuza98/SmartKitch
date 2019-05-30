@@ -33,7 +33,7 @@
     <string name="textview">TextView</string>
 
     <string name="preparation">Preparation</string>
-    <string name="ingredients"><u>Ingredients</u></string>
+    <string name="ingredients">Ingredients</string>
     <string name="similar">Similar</string>
     <string name="ingredient_name">Ingredient Name</string>
     <string name="_100_g">100 g</string>

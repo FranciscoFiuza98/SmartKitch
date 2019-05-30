@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +17,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 
 public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<FragmentRecipeIngredientsAdapter.ViewHolder>{
@@ -30,10 +42,13 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
     //Context given in constructor
     private Context context;
 
+    private FirebaseUser currentUser;
+
     //Constructor
-    public FragmentRecipeIngredientsAdapter(Context context, ArrayList<IngredientRecipe> ingredients) {
+    public FragmentRecipeIngredientsAdapter(Context context, ArrayList<IngredientRecipe> ingredients, FirebaseUser currentUser) {
         this.mIngredients= ingredients;
         this.context = context;
+        this.currentUser = currentUser;
     }
 
     //Creates View object with the ingredient information
@@ -52,18 +67,59 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
 
+        final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
         //Gets IngredientRecipe object
         final IngredientRecipe ingredientRecipe = mIngredients.get(i);
 
-        //Sets ingredient name, amount and unit
-        viewHolder.txtIngredientName.setText(ingredientRecipe.getName());
-        viewHolder.txtIngredientAmount.setText(ingredientRecipe.getAmount());
-        viewHolder.txtIngredientUnit.setText(ingredientRecipe.getUnit());
+        final String ingredientId= ingredientRecipe.getId();
+        String ingredientName = ingredientRecipe.getName();
+        String ingredientAmount = ingredientRecipe.getAmount();
+        String ingredientUnit= ingredientRecipe.getUnit();
+
+        //Sets ingredient ide, name, amount and unit
+
+        viewHolder.txtRecipeIngredientId.setText(ingredientId);
+        viewHolder.txtIngredientName.setText(ingredientName);
+        viewHolder.txtIngredientAmount.setText(ingredientAmount);
+        viewHolder.txtIngredientUnit.setText(ingredientUnit);
+
+        //Gets user's favorite ingredients
+        firestore.collection("Users").document(Objects.requireNonNull(currentUser.getEmail())).collection("FavoriteIngredients")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+
+                                //Favorite ingredient data from database
+                                Map<String, Object> favoriteIngredient = document.getData();
+
+                                //If the recipe Ingredient is already in user's favorite ingredients, sets the checkbox to checked
+                                for (String key : favoriteIngredient.keySet()) {
+                                    String value = (String) favoriteIngredient.get(key);
+
+                                    if (key.equals("ingredientId")) {
+                                        if (value.equals(ingredientId)) {
+                                            viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
 
         //Criates OnClickListener for each card
         viewHolder.recipeIngredientCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                Log.d(TAG, "Ingredient ID: " + viewHolder.txtRecipeIngredientId.getText().toString());
+                Log.d(TAG, "Ingredient Name: " + viewHolder.txtIngredientName.getText().toString());
 
                 //Gets bitmap of the current image of the button
                 final Bitmap btnBitMap = ((BitmapDrawable) viewHolder.btnCheckbox.getDrawable()).getBitmap();
@@ -80,8 +136,74 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                 if (btnBitMap.sameAs(bitMapChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
 
+                    firestore.collection("Users").document(Objects.requireNonNull(currentUser.getEmail())).collection("FavoriteIngredients")
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+
+                                            //Favorite ingredient data from database
+                                            Map<String, Object> favoriteIngredient = document.getData();
+
+                                            //If the recipe Ingredient is already in user's favorite ingredients, sets the checkbox to checked
+                                            for (String key : favoriteIngredient.keySet()) {
+                                                String value = (String) favoriteIngredient.get(key);
+
+                                                if (key.equals("ingredientId")) {
+                                                    if (value.equals(viewHolder.txtRecipeIngredientId.getText().toString())) {
+                                                        final String documentID = document.getId();
+
+                                                        Log.d(TAG, "Document ID: " + documentID);
+
+                                                        //Deletes ingredient from user's favorite ingredients collection
+                                                        firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(documentID)
+                                                                .delete()
+                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    @Override
+                                                                    public void onSuccess(Void aVoid) {
+                                                                        Log.d(TAG, "" + documentID + " successfully deleted!");
+                                                                    }
+                                                                })
+                                                                .addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception e) {
+                                                                        Log.w(TAG, "Error deleting document", e);
+                                                                    }
+                                                                });
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        Log.w(TAG, "Error getting documents.", task.getException());
+                                    }
+                                }
+                            });
+
                 } else if (btnBitMap.sameAs(bitMapNotChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+
+                    final Map<String, Object> newIngredient = new HashMap<>();
+                    newIngredient.put("ingredientId", viewHolder.txtRecipeIngredientId.getText().toString());
+                    newIngredient.put("name", viewHolder.txtIngredientName.getText().toString());
+
+                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document()
+                            .set(newIngredient)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "New ingredient added!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "onFailure: ", e);
+                                }
+                            });
                 }
 
             }
@@ -105,8 +227,76 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                 if (btnBitMap.sameAs(bitMapChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
 
+                    //TODO prevent user from having less than 5 favorite ingredients in the database
+
+                    firestore.collection("Users").document(Objects.requireNonNull(currentUser.getEmail())).collection("FavoriteIngredients")
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+
+                                            //Favorite ingredient data from database
+                                            Map<String, Object> favoriteIngredient = document.getData();
+
+                                            //If the recipe Ingredient is already in user's favorite ingredients, sets the checkbox to checked
+                                            for (String key : favoriteIngredient.keySet()) {
+                                                String value = (String) favoriteIngredient.get(key);
+
+                                                if (key.equals("ingredientId")) {
+                                                    if (value.equals(viewHolder.txtRecipeIngredientId.getText().toString())) {
+                                                        final String documentID = document.getId();
+
+                                                        Log.d(TAG, "Document ID: " + documentID);
+
+                                                        //Deletes ingredient from user's favorite ingredients collection
+                                                        firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(documentID)
+                                                                .delete()
+                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    @Override
+                                                                    public void onSuccess(Void aVoid) {
+                                                                        Log.d(TAG, "" + documentID + " successfully deleted!");
+                                                                    }
+                                                                })
+                                                                .addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception e) {
+                                                                        Log.w(TAG, "Error deleting document", e);
+                                                                    }
+                                                                });
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        Log.w(TAG, "Error getting documents.", task.getException());
+                                    }
+                                }
+                            });
+
                 } else if (btnBitMap.sameAs(bitMapNotChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+                    
+                    final Map<String, Object> newIngredient = new HashMap<>();
+                    newIngredient.put("ingredientId", viewHolder.txtRecipeIngredientId.getText().toString());
+                    newIngredient.put("name", viewHolder.txtIngredientName.getText().toString());
+
+                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document()
+                            .set(newIngredient)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "New ingredient added!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "onFailure: ", e);
+                                }
+                            });
                 }
             }
         });
@@ -125,12 +315,14 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
         TextView txtIngredientName;
         TextView txtIngredientAmount;
         TextView txtIngredientUnit;
+        TextView txtRecipeIngredientId;
         CardView recipeIngredientCard;
         ImageButton btnCheckbox;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            txtRecipeIngredientId = itemView.findViewById(R.id.txtRecipeIngredientId);
             txtIngredientName = itemView.findViewById(R.id.txtIngredientName);
             txtIngredientAmount = itemView.findViewById(R.id.txtIngredientAmount);
             txtIngredientUnit = itemView.findViewById(R.id.txtIngredientUnit);
