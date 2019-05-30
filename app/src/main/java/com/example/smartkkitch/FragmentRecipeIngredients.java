@@ -148,7 +148,7 @@ public class FragmentRecipeIngredients extends Fragment {
         return view;
     }
 
-    private void   getRecipeIngredients(final Recipe recipe) {
+    private void getRecipeIngredients(final Recipe recipe) {
 
         //Url for API request
         String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/" + recipe.getId() + "/information";

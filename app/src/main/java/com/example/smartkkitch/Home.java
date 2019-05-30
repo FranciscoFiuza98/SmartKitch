@@ -50,7 +50,7 @@ public class Home extends AppCompatActivity {
     private SectionsStatePagerAdapter mSectionsStatePagerAdapter;
     private ViewPager mViewPager;
 
-    //TODO find way to reload activity after backing up from other activities
+    //TODO find a way to update the ingredients recyclerview after backing up from another activity to not show repeated ingredients
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
