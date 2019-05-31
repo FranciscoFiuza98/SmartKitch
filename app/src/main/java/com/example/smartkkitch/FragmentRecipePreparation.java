@@ -1,9 +1,11 @@
 package com.example.smartkkitch;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,7 +46,7 @@ public class FragmentRecipePreparation extends Fragment {
     private String apiKey = "890724bd25msh8626e74253b368cp16308cjsnf290bae6aa08";
     private RequestQueue mQueue;
 
-    private ArrayList<String> mRecipeSteps = new ArrayList<>();
+    private ArrayList<RecipeStep> mRecipeSteps = new ArrayList<>();
 
     private RecyclerView mPreparationRecyclerView;
 
@@ -57,6 +60,8 @@ public class FragmentRecipePreparation extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
 
+        mQueue = Volley.newRequestQueue(getActivity());
+
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
         View view = inflater.inflate(R.layout.fragment_recipe_preparation, container, false);
@@ -67,7 +72,7 @@ public class FragmentRecipePreparation extends Fragment {
         mPreparationRecyclerView = view.findViewById(R.id.preparationRecyclerView);
 
         //Gets recipe used in home activity
-        final Recipe recipe = ((RecipeActivity)getActivity()).getRecipe();
+        final Recipe recipe = ((RecipeActivity) getActivity()).getRecipe();
 
         firestore.collection("Recipes").document(recipe.getId()).collection("Steps")
                 .get()
@@ -79,17 +84,22 @@ public class FragmentRecipePreparation extends Fragment {
 
                             if (result.size() == 0) {
                                 getRecipeSteps(recipe);
+
+                                Log.d(TAG, "Getting Steps from API");
                             } else {
-                                for (QueryDocumentSnapshot document: result) {
+                                Log.d(TAG, "Getting Steps from Firebase");
+                                for (QueryDocumentSnapshot document : result) {
                                     Map<String, Object> recipeStep = document.getData();
 
-                                    String recipeStepNumber = recipeStep.get("stepNumber").toString();
-                                    String recipeStepDescription = recipeStep.get("stepDescription").toString();
+                                    String recipeStepNumber = document.getId();
+                                    String recipeStepDescription = recipeStep.get("description").toString();
 
-                                    mRecipeSteps.add(Integer.parseInt(recipeStepNumber) - 1, recipeStepDescription);
+                                    RecipeStep newRecipeStep = new RecipeStep(recipeStepNumber, recipeStepDescription);
+
+                                    mRecipeSteps.add(newRecipeStep);
                                 }
 
-                                //initRecyclerView(mRecipeSteps);
+                                initRecyclerView(mRecipeSteps);
                             }
 
 
@@ -102,21 +112,21 @@ public class FragmentRecipePreparation extends Fragment {
         txtIngredients.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((RecipeActivity)getActivity()).setViewPager(0);
+                ((RecipeActivity) getActivity()).setViewPager(0);
             }
         });
 
         txtPreparation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((RecipeActivity)getActivity()).setViewPager(1);
+                ((RecipeActivity) getActivity()).setViewPager(1);
             }
         });
 
         txtSimiliarRecipes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((RecipeActivity)getActivity()).setViewPager(2);
+                ((RecipeActivity) getActivity()).setViewPager(2);
             }
         });
 
@@ -129,19 +139,94 @@ public class FragmentRecipePreparation extends Fragment {
         String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/" + recipe.getId() + "/analyzedInstructions?stepBreakdown=true";
         final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
+        Log.d(TAG, "Url: " + url);
 
-        //TODO change request to receive a json array
+        final Recipe currentRecipe = ((RecipeActivity) getActivity()).getRecipe();
+        Log.d(TAG, "Recipe ID: " + currentRecipe.getId());
+
+
         //Volley Request
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
 
                 try {
-                    JSONArray arraySteps = response.getJSONArray("steps");
 
-                    Log.d(TAG, "Steps: " + arraySteps);
+                    JSONObject responseObject = response.getJSONObject(0);
+
+                    JSONArray steps = responseObject.getJSONArray("steps");
+
+                    for (int i = 0; i < steps.length(); i++) {
+                        JSONObject currentStep = (JSONObject) steps.get(i);
+
+                        int stepNumber = currentStep.getInt("number");
+                        String stepDescription = currentStep.getString("step");
+
+                        RecipeStep newRecipeStep = new RecipeStep(Integer.toString(stepNumber), stepDescription);
+
+                        mRecipeSteps.add(newRecipeStep);
+                    }
+
+
+                    //Iterates over all steps
+                    for (RecipeStep recipeStep : mRecipeSteps) {
+
+                        //Gets step number and description
+                        String stepNumber = recipeStep.getNumber();
+                        String stepDescription = recipeStep.getDescription();
+
+                        //Creates StepDescription HashMap
+                        final HashMap<String, Object> hashStepDescription = new HashMap<>();
+                        hashStepDescription.put("description", stepDescription);
+
+                        //Adds step description to database
+                        firestore.collection("Recipes").document(currentRecipe.getId()).collection("Steps").document(stepNumber)
+                                .set(hashStepDescription)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "Description added: " + hashStepDescription);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "onFailure: ", e);
+                                    }
+                                });
+
+                    }
+
+
+                    initRecyclerView(mRecipeSteps);
+
+                    //TODO put an empty state in the preparation fragment when there are no steps to show
                 } catch (JSONException e) {
                     e.printStackTrace();
+
+                    RecipeStep emptyRecipeStep = new RecipeStep("1", "No steps to show");
+
+                    mRecipeSteps.add(emptyRecipeStep);
+
+                    final HashMap<String, Object> hashStepDescription = new HashMap<>();
+                    hashStepDescription.put("description", emptyRecipeStep.getDescription());
+
+                    firestore.collection("Recipes").document(currentRecipe.getId()).collection("Steps").document(emptyRecipeStep.getNumber())
+                            .set(hashStepDescription)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "Description added: " + hashStepDescription);
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "onFailure: ", e);
+                                }
+                            });
+
+                    initRecyclerView(mRecipeSteps);
                 }
 
             }
@@ -163,6 +248,16 @@ public class FragmentRecipePreparation extends Fragment {
 
         //Adds request to queue
         mQueue.add(request);
+
+    }
+
+    private void initRecyclerView(ArrayList<RecipeStep> arrayRecipeSteps) {
+
+        //Creates layout manager, adapter and sets them to the RecyclerView
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        mPreparationRecyclerView.setLayoutManager(layoutManager);
+        FragmentRecipePreparationAdapter adapter = new FragmentRecipePreparationAdapter(getActivity(), arrayRecipeSteps, user);
+        mPreparationRecyclerView.setAdapter(adapter);
 
     }
 }
