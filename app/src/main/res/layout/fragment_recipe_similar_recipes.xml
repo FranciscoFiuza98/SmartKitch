@@ -40,4 +40,11 @@
         android:textSize="16sp"
         android:textStyle="bold" />
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/similarRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/txtIngredients"
+        android:layout_marginTop="20dp" />
+
 </RelativeLayout>

@@ -85,9 +85,7 @@ public class FragmentRecipePreparation extends Fragment {
                             if (result.size() == 0) {
                                 getRecipeSteps(recipe);
 
-                                Log.d(TAG, "Getting Steps from API");
                             } else {
-                                Log.d(TAG, "Getting Steps from Firebase");
                                 for (QueryDocumentSnapshot document : result) {
                                     Map<String, Object> recipeStep = document.getData();
 
@@ -139,10 +137,7 @@ public class FragmentRecipePreparation extends Fragment {
         String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/" + recipe.getId() + "/analyzedInstructions?stepBreakdown=true";
         final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-        Log.d(TAG, "Url: " + url);
-
         final Recipe currentRecipe = ((RecipeActivity) getActivity()).getRecipe();
-        Log.d(TAG, "Recipe ID: " + currentRecipe.getId());
 
 
         //Volley Request
