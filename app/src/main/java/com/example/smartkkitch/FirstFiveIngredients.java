@@ -16,8 +16,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -25,7 +27,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firestore.v1beta1.Document;
 import com.google.firestore.v1beta1.WriteResult;
 
 import org.json.JSONException;
@@ -41,32 +47,11 @@ public class FirstFiveIngredients extends AppCompatActivity {
     //Tag for debugging
     private static final String TAG = "FirstFiveIngredients";
 
-    //RequestQueue object used to make HTTP requests
-    private RequestQueue mQueue;
-
     private FirebaseAuth mAuth;
+    private FirebaseFirestore firestore;
+    private FirebaseUser currentUser;
 
-    //Header variables used in the RapidApi requests
-    private String apiHost = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com";
-    private String apiKey = "890724bd25msh8626e74253b368cp16308cjsnf290bae6aa08";
-
-    //Api url to get images, image name is needed after the end of this string so the correct image is loaded
-    private String imageUrl = "https://spoonacular.com/cdn/ingredients_100x100/";
-
-    private String userEmail;
-    private String userName;
-
-    //Holds number of API requests (for Debugging)
-    private int count = 0;
-
-    //Firebase database reference
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
-    DatabaseReference myRef = database.getReference("/");
-
-    //Array lists with names and images of the ingredients
-    private ArrayList<String> arrayNames = new ArrayList<>();
-    private ArrayList<String> arrayImagesUrl = new ArrayList<>();
-    private ArrayList<String> arrayIds = new ArrayList<>();
+    ArrayList<Ingredient> mIngredients = new ArrayList<>();
 
     //RecyclerView adapter class
     FirstFiveIngredients_RecyclerViewAdapter adapter;
@@ -80,141 +65,44 @@ public class FirstFiveIngredients extends AppCompatActivity {
         setContentView(R.layout.activity_first_five_ingredients);
 
         mAuth = FirebaseAuth.getInstance();
-
-        //Gets intent sent from previous activity and gets intent extras
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-
-        if (extras != null) {
-            userEmail = extras.getString("email");
-            userName = extras.getString("name");
-        }
-
-        //Queue used to send requests
-        mQueue = Volley.newRequestQueue(this);
+        currentUser = mAuth.getCurrentUser();
+        firestore = FirebaseFirestore.getInstance();
 
         //Calls function to fill the names and images arrays, this functions initiates the RecylcerView as well.
-        fillArrays();
+        getIngredients();
     }
 
-    private void fillArrays() {
-        //Connects to database
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            //For every item on the database creates a DataSnapshot object
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+    //TODO get ingredients from Firestore instead of RealTime
+    private void getIngredients() {
 
-                //Creates an iterable of each item
-                Iterable<DataSnapshot> iterable = dataSnapshot.getChildren();
+        firestore.collection("Ingredients")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
 
-                //Iterates the iterable and gets ingredient Name and ID and populates the names array
-                for (DataSnapshot ingredient : iterable) {
-                    Iterable<DataSnapshot> ingredientNames = ingredient.getChildren();
+                                String ingredientId = document.getId();
+                                String ingredientName = document.get("name").toString();
+                                String ingredientImageUrl = document.get("imageUrl").toString();
 
-                    for (DataSnapshot name : ingredientNames) {
-                        String key = name.getKey();
+                                Ingredient ingredient = new Ingredient(ingredientId, ingredientName, ingredientImageUrl);
 
-                        assert key != null;
-                        if (key.equals("name")) {
+                                mIngredients.add(ingredient);
 
-                            String ingredientName = Objects.requireNonNull(name.getValue()).toString();
-                            arrayNames.add(ingredientName);
+                            }
 
-                        } else if (key.equals("ingredientId")) {
-                            String ingredientId = Objects.requireNonNull(name.getValue()).toString();
-                            arrayIds.add(ingredientId);
+                            initRecyclerView();
                         }
                     }
-                }
-
-                //Hardcoded images to save API requests
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/brown-onion.png");
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/egg.jpg");
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/bacon.jpg");
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/garlic.jpg");
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/yellow-bell-pepper.jpg");
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/carrots.jpg");
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/whole-chicken.jpg");
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/tomato.jpg");
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/beef-cubes-raw.png");
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/potatoes-yukon-gold.jpg");
-                arrayImagesUrl.add("https://spoonacular.com/cdn/ingredients_100x100/shrimp.jpg");
-
-
-                initRecyclerView();
-
-
-                //Sends API request to get image for each ingredient ID
-                /*for (String idIngrediente: arrayIds) {
-                    getIngredientImage(idIngrediente);
-                }*/
-
-
-            }
-
-            @Override
-            //Throws an error if there is one connecting to the database
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: ", databaseError.toException());
-            }
-        });
-    }
-
-    private void getIngredientImage(String ingredientID) {
-
-        //Api url that gives information about an ingredient
-        String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/food/ingredients/" + ingredientID + "/information?amount=100&unit=gram";
-
-        /*TODO
-            Create collection in database that saves the ingredient information to save API requests:
-                - On initRecyclerView, after the ingredient objects have been created, iterate over the ingredients list and check if it exists in IngredientInformation collection, if not, add the ingredient information to the collection.
-                - During the iteration that calls the getIngredientImage function, check for each ingredient if it exists in the database, if exists, get ingredient information from database, if not, call getIngredientImage function
-                ----------------------------------------------------------------------------------------DO THE SAME OR SIMILAR TO RECIPES IN HOME ACTIVITY-----------------------------------------------------------------------------------
-        */
-        //Volley Request
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                //Increments count each time a response is received (For debugging)
-                count++;
-                Log.d(TAG, "Api Requests: " + count);
-
-                try {
-
-                    //Gets image name from response JSON object
-                    String image = response.getString("image");
-
-                    //Adds image name to API url that holds all images, and adds the result string to the images array
-                    arrayImagesUrl.add(imageUrl + image);
-
-                    //When the number of image links is the same as the number of ingredient IDs, initializes Recycler View
-                    if (arrayImagesUrl.size() == arrayIds.size()) {
-
-                        initRecyclerView();
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
                     }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> params = new HashMap<>();
-                params.put("X-RapidAPI-Host", apiHost);
-                params.put("X-RapidAPI-Key", apiKey);
-
-                return params;
-            }
-        };
-
-        //Adds request to queue
-        mQueue.add(request);
+                });
 
     }
 
@@ -222,24 +110,12 @@ public class FirstFiveIngredients extends AppCompatActivity {
     private void initRecyclerView() {
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        ArrayList<Ingredient> ingredients = new ArrayList<>();
-
-        //Iterates over IDs, Names and ImageUrls arrays, creates an Ingredient object with the information and adds the object to ingredients array
-        for (int i = 0; i < arrayIds.size(); i++) {
-            String id = arrayIds.get(i);
-            String name = arrayNames.get(i);
-            String imageUrl = arrayImagesUrl.get(i);
-
-            Ingredient ingredient = new Ingredient(id, name, imageUrl);
-
-            ingredients.add(ingredient);
-        }
 
         //Creates layout manager and adapter and sets them to the RecyclerView
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
         RecyclerView recyclerView = findViewById(R.id.recyclerVIew);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, ingredients, currentUser);
+        adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, mIngredients, currentUser);
 
         //Sets adapter to RecyclerView
         recyclerView.setAdapter(adapter);
@@ -258,10 +134,10 @@ public class FirstFiveIngredients extends AppCompatActivity {
             FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
             final Map<String, Object> user = new HashMap<>();
-            user.put("name", userName);
+            user.put("name", currentUser.getDisplayName());
 
             //Adds user to the Users collection in the database
-            firestore.collection("Users").document(userEmail)
+            firestore.collection("Users").document(currentUser.getEmail())
                     .set(user)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -279,10 +155,10 @@ public class FirstFiveIngredients extends AppCompatActivity {
             //Adds user's favorite ingredients to his FavoriteIngredients collection in the database
             for (Ingredient ingredient : favoriteIngredients) {
                 final Map<String, Object> favoriteIngredient = new HashMap<>();
-                favoriteIngredient.put("ingredientId", ingredient.getId());
                 favoriteIngredient.put("name", ingredient.getName());
+                favoriteIngredient.put("imageUrl", ingredient.getImageUrl());
 
-                firestore.collection("Users").document(userEmail).collection("FavoriteIngredients").document()
+                firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredient.getId())
                         .set(favoriteIngredient)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -296,18 +172,13 @@ public class FirstFiveIngredients extends AppCompatActivity {
                                 Log.w(TAG, "onFailure: ", e);
                             }
                         });
-
-                //Gets ID of last ingredient
-                String lastIngredientId = favoriteIngredients.get(favoriteIngredients.size() - 1).getId();
-
-                //If the current ingredient ID is the same as lastIngredientId, meaning that it is the last iteration of the ArrayList, starts Home activity
-                if (ingredient.getId().equals(lastIngredientId)) {
-                    Intent intent = new Intent(getApplicationContext(), Home.class);
-                    Toast.makeText(getApplicationContext(), "Favorite ingredients saved!", Toast.LENGTH_LONG).show();
-                    startActivity(intent);
-                    finish();
-                }
             }
+
+            //Starts Home Activity
+            Intent intent = new Intent(getApplicationContext(), Home.class);
+            Toast.makeText(getApplicationContext(), "Favorite ingredients saved!", Toast.LENGTH_LONG).show();
+            startActivity(intent);
+            finish();
         }
 
 
