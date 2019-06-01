@@ -53,7 +53,8 @@ public class Home extends AppCompatActivity {
     private SectionsStatePagerAdapter mSectionsStatePagerAdapter;
     private ViewPager mViewPager;
 
-    //TODO find a way to update the ingredients recyclerview after backing up from another activity to not show repeated ingredients
+    //TODO Find a way to update the ingredients recyclerview after backing up from another activity to not show repeated ingredients
+    //TODO Add "View All ingredients"
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -169,8 +170,6 @@ public class Home extends AppCompatActivity {
 
                                 //Favorite ingredient data from database
                                 Map<String, Object> favoriteIngredient = document.getData();
-
-                                //Iterator object from HashMap favoriteIngredient
 
                                 //Iterates over ingredient and adds it's ID to the currentFavoriteIngredientsId ArrayList
                                 for (String key : favoriteIngredient.keySet()) {
