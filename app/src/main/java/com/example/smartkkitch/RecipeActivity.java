@@ -7,14 +7,28 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 import java.nio.BufferUnderflowException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RecipeActivity extends AppCompatActivity {
 
@@ -23,11 +37,15 @@ public class RecipeActivity extends AppCompatActivity {
     private SectionsStatePagerAdapter mSectionsStatePagerAdapter;
     private ViewPager mViewPager;
 
+    FirebaseAuth mAuth;
+    FirebaseUser currentUser;
+
     ImageView imgRecipeImage;
     TextView txtRecipeName;
     String recipeId;
     String recipeName;
     String recipeImageUrl;
+    Button btnSaveRecipe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +59,14 @@ public class RecipeActivity extends AppCompatActivity {
         //Gets recipe image and name references
         imgRecipeImage = findViewById(R.id.imgRecipeImage);
         txtRecipeName = findViewById(R.id.txtRecipeName);
+        btnSaveRecipe = findViewById(R.id.btnSaveRecipe);
+
+        btnSaveRecipe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveRecipe();
+            }
+        });
 
         //Changes the recipe image and name using the extras
         if (extras != null) {
@@ -54,6 +80,9 @@ public class RecipeActivity extends AppCompatActivity {
 
         mSectionsStatePagerAdapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
         mViewPager = findViewById(R.id.recipeIngredientsPager);
+
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -82,6 +111,92 @@ public class RecipeActivity extends AppCompatActivity {
     public Recipe getRecipe() {
      Recipe recipe = new Recipe(recipeId, recipeName, recipeImageUrl);
      return recipe;
+    }
+
+    private void saveRecipe() {
+        final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        final Recipe currentRecipe = getRecipe();
+
+        firestore.collection("Users").document(currentUser.getEmail()).collection("SavedRecipes").document(currentRecipe.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        DocumentSnapshot result = task.getResult();
+
+                        Map<String, Object> recipe = result.getData();
+
+                        if (recipe == null) {
+                            final HashMap<String, Object> saveRecipe = new HashMap<>();
+                            saveRecipe.put("name", currentRecipe.getName());
+                            saveRecipe.put("imageUrl", currentRecipe.getImageUrl());
+
+                            //TODO change button when recipe is saved
+                            //Saves recipe to user's SavedRecipes collection
+                            firestore.collection("Users").document(currentUser.getEmail()).collection("SavedRecipes").document(currentRecipe.getId())
+                                    .set(saveRecipe)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(RecipeActivity.this, "Recipe Saved", Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "onFailure: ", e);
+                                        }
+                                    });
+
+                            //Checks if saved recipe has exists or has information about it, if not, adds it
+                            firestore.collection("Recipes").document(currentRecipe.getId())
+                                    .get()
+                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            DocumentSnapshot result = task.getResult();
+
+                                            final Map<String, Object> savedRecipe = result.getData();
+
+                                            if(savedRecipe == null) {
+                                                firestore.collection("Recipes").document(currentRecipe.getId())
+                                                        .set(saveRecipe)
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Log.d(TAG, "Recipe Saved: " + saveRecipe);
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                e.printStackTrace();
+                                                            }
+                                                        });
+                                            }
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    });
+
+                        }
+                        else {
+                            Toast.makeText(RecipeActivity.this, "You already saved this recipe.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
     }
 
     //Bottom navigation on item select listener
