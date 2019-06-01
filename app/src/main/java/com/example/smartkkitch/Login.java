@@ -82,7 +82,7 @@ public class Login extends AppCompatActivity {
                                                     String userEmail = document.getId();
                                                     if (email.equals(userEmail)) {
                                                         userExists = true;
-                                                        Intent intent = new Intent(getBaseContext(), Home.class);
+                                                        Intent intent = new Intent(getBaseContext(), MainActivity.class);
                                                         startActivity(intent);
                                                         finish();
                                                     }

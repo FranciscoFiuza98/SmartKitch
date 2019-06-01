@@ -3,6 +3,7 @@ package com.example.smartkkitch;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -63,7 +66,15 @@ public class Home extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        Menu menu = navView.getMenu();
+        MenuItem menuItem = menu.getItem(0);
+        menuItem.setChecked(true);
+
         fillArrays();
+
+
 
 
     }
@@ -226,4 +237,28 @@ public class Home extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
     }
+
+    //Bottom navigation on item select listener
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+            //Switches between the item selected and starts corresponding activity
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    return true;
+                case R.id.navigation_dashboard:
+                    Intent myRecipesIntent = new Intent(getApplicationContext(), MyRecipesActivity.class);
+                    startActivity(myRecipesIntent);
+                    return true;
+                case R.id.navigation_notifications:
+                    Intent generateIntent = new Intent(getApplicationContext(), GenerateActivity.class);
+                    startActivity(generateIntent);
+                    return true;
+            }
+            return false;
+        }
+    };
 }
