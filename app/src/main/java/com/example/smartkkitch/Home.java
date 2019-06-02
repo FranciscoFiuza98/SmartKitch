@@ -41,7 +41,7 @@ public class Home extends AppCompatActivity {
 
     private FirstFiveIngredients_RecyclerViewAdapter adapter;
 
-    //TODO Find a way to update the ingredients recyclerview after backing up from another activity to not show repeated ingredients. Try to create another function that empties the ignredietns array, filters it again and notifies the changes.
+    //TODO Find a way to update ingredients and recipes recycler view on activity resume
     //TODO Add "View All ingredients"
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +67,7 @@ public class Home extends AppCompatActivity {
         getIngredients();
 
     }
+
 
     public void setViewPager(int fragmentNumber) {
         mViewPager.setCurrentItem(fragmentNumber);

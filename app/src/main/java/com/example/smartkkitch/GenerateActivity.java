@@ -5,7 +5,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AbsListView;
@@ -70,18 +72,18 @@ public class GenerateActivity extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
 
                                 //Favorite ingredient data from database
-                                Map<String, Object> favoriteIngredient = document.getData();
+                                Map<String, Object> data = document.getData();
 
-                                //TODO finish
-                                //Iterates over ingredient and adds it's ID to the currentFavoriteIngredientsId ArrayList
-                                for (String key : favoriteIngredient.keySet()) {
-                                    String value = (String) favoriteIngredient.get(key);
+                                String ingredientId = document.getId();
+                                String ingredientName = data.get("name").toString();
+                                String ingredientImageUrl = data.get("imageUrl").toString();
 
-                                    if (key.equals("ingredientId")) {
+                                Ingredient favoriteIngredient = new Ingredient(ingredientId, ingredientName, ingredientImageUrl);
 
-                                    }
-                                }
+                                mFavoriteIngredients.add(favoriteIngredient);
                             }
+
+                            initRecyclerView();
                         }
                     }
                 })
@@ -93,6 +95,18 @@ public class GenerateActivity extends AppCompatActivity {
                 });
 
     }
+
+
+    private void initRecyclerView() {
+
+        //Creates layout manager, adapter and sets them to the RecyclerView
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        generateRecyclerView.setLayoutManager(layoutManager);
+        GenerateAdapter adapter = new GenerateAdapter(this, mFavoriteIngredients);
+        generateRecyclerView.setAdapter(adapter);
+
+    }
+
 
     //Bottom navigation on item select listener
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
