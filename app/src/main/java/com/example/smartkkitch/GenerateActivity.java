@@ -10,7 +10,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AbsListView;
+import android.widget.Button;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -35,6 +37,9 @@ public class GenerateActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
 
+    GenerateAdapter adapter;
+
+    Button btnGenerate;
     RecyclerView generateRecyclerView;
 
     @Override
@@ -56,9 +61,27 @@ public class GenerateActivity extends AppCompatActivity {
 
         //Gets Recycler View reference
         generateRecyclerView = findViewById(R.id.generateRecyclerView);
+        btnGenerate = findViewById(R.id.btnGenerate);
+        btnGenerate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                generateRecipe();
+            }
+        });
 
         //Gets user's favorite ingredients and adds them to the recycler view
         getUserFavoriteIngredients();
+    }
+
+    private void generateRecipe() {
+
+        ArrayList<String> selectedIngredients = adapter.getSelectedIngredients();
+
+        Intent intent = new Intent(this, GeneratedRecipesActivity.class);
+        intent.putExtra("selectedIngredients", selectedIngredients);
+
+        startActivity(intent);
+
     }
 
     private void getUserFavoriteIngredients() {
@@ -102,7 +125,7 @@ public class GenerateActivity extends AppCompatActivity {
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         generateRecyclerView.setLayoutManager(layoutManager);
-        GenerateAdapter adapter = new GenerateAdapter(this, mFavoriteIngredients);
+        adapter = new GenerateAdapter(this, mFavoriteIngredients);
         generateRecyclerView.setAdapter(adapter);
 
     }

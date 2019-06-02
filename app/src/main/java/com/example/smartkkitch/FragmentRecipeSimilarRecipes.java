@@ -177,7 +177,6 @@ public class FragmentRecipeSimilarRecipes extends Fragment {
 
                     //Creates a HashMap with recipe info
                     final HashMap<String, Object> newSimilarRecipe = new HashMap<>();
-                    newSimilarRecipe.put("id", recipeId);
                     newSimilarRecipe.put("name", recipeName);
                     newSimilarRecipe.put("imageUrl", recipeImageUrl);
 

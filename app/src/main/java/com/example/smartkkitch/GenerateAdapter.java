@@ -145,6 +145,12 @@ public class GenerateAdapter extends RecyclerView.Adapter<GenerateAdapter.ViewHo
         return mIngredients.size();
     }
 
+    public ArrayList<String> getSelectedIngredients() {
+
+        return mSelectedIngredients;
+
+    }
+
     //Card structure
     public class ViewHolder extends RecyclerView.ViewHolder {
 
