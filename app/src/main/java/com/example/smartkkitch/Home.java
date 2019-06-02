@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -38,7 +39,9 @@ public class Home extends AppCompatActivity {
     private ArrayList<Ingredient> mIngredients = new ArrayList<>();
     private ArrayList<Ingredient> mFavoriteIngredients = new ArrayList<>();
 
-    //TODO Find a way to update the ingredients recyclerview after backing up from another activity to not show repeated ingredients
+    private FirstFiveIngredients_RecyclerViewAdapter adapter;
+
+    //TODO Find a way to update the ingredients recyclerview after backing up from another activity to not show repeated ingredients. Try to create another function that empties the ignredietns array, filters it again and notifies the changes.
     //TODO Add "View All ingredients"
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +64,6 @@ public class Home extends AppCompatActivity {
         MenuItem menuItem = menu.getItem(0);
         menuItem.setChecked(true);
 
-        //Gets ingredients from database
         getIngredients();
 
     }
@@ -95,7 +97,9 @@ public class Home extends AppCompatActivity {
 
                                 Ingredient ingredient = new Ingredient(ingredientId, ingredientName, ingredientImageUrl);
 
+
                                 mIngredients.add(ingredient);
+
 
                             }
 
@@ -146,8 +150,9 @@ public class Home extends AppCompatActivity {
                                 }
                             }
 
-                            //Initializes Recycler View with ingredients that user haven't favorite yet
                             initRecyclerView();
+
+
                         }
                     }
                 })
@@ -173,7 +178,7 @@ public class Home extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         //Creates a new adapter object
-        FirstFiveIngredients_RecyclerViewAdapter adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, mIngredients, currentUser);
+        adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, mIngredients, currentUser);
 
         //Sets adapter to RecyclerView
         recyclerView.setAdapter(adapter);

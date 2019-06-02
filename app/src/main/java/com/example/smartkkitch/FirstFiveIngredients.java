@@ -72,7 +72,6 @@ public class FirstFiveIngredients extends AppCompatActivity {
         getIngredients();
     }
 
-    //TODO get ingredients from Firestore instead of RealTime
     private void getIngredients() {
 
         firestore.collection("Ingredients")

@@ -17,21 +17,26 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirestoreRegistrar;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class FragmentForYou extends Fragment{
+public class FragmentForYou extends Fragment {
     private static final String TAG = "FragmentForYou";
 
     FirebaseFirestore firestore;
 
     //Lists for recipe information and Recipe object
     private ArrayList<Recipe> mRecipes = new ArrayList<>();
+    private ArrayList<Recipe> mRemoveRecipes = new ArrayList<>();
+
+    private RecyclerView recipeRecyclerView;
 
     @Nullable
     @Override
@@ -43,7 +48,7 @@ public class FragmentForYou extends Fragment{
         //Gets instances for each object inside fragment
         Button btnForYou = view.findViewById(R.id.btnForYou);
         Button btnMeat = view.findViewById(R.id.btnMeat);
-        final RecyclerView recipeRecyclerView = view.findViewById(R.id.recipeRecyclerView);
+        recipeRecyclerView = view.findViewById(R.id.recipeRecyclerView);
 
 
         //TODO Recommend recipes based on other user's saved recipes
@@ -54,28 +59,20 @@ public class FragmentForYou extends Fragment{
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document: Objects.requireNonNull(task.getResult())) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 String recipeId = document.getId();
                                 String recipeName = document.get("name").toString();
                                 String recipeImageUrl = document.get("imageUrl").toString();
 
                                 Recipe recipe = new Recipe(recipeId, recipeName, recipeImageUrl);
 
-
                                 mRecipes.add(recipe);
-
-                                //Creates layout manager, adapter and sets them to the RecyclerView
-                                LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-                                recipeRecyclerView.setLayoutManager(layoutManager);
-                                HomeRecipeRecyclerViewAdapter adapter = new HomeRecipeRecyclerViewAdapter(getActivity(), mRecipes);
-                                recipeRecyclerView.setAdapter(adapter);
                             }
+
+                            checkRecipes();
                         }
                     }
                 });
-
-
-
 
 
         //On click listener for "For You" button
@@ -99,6 +96,54 @@ public class FragmentForYou extends Fragment{
         });
 
         return view;
+    }
+
+    private void checkRecipes() {
+
+        for (int i = 0; i < mRecipes.size(); i++) {
+
+            final Recipe recipe = mRecipes.get(i);
+
+            firestore.collection("Recipes").document(recipe.getId()).collection("Steps")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+
+                                QuerySnapshot result = task.getResult();
+
+                                if (result.size() == 1) {
+                                    mRemoveRecipes.add(recipe);
+                                }
+
+                                String lastRecipeId = mRecipes.get(mRecipes.size() - 1).getId();
+
+                                if (recipe.getId().equals(lastRecipeId)) {
+                                    Log.d(TAG, "Initializing recycler view");
+                                    initRecyclerView();
+                                }
+                            }
+                        }
+                    });
+        }
+    }
+
+    private void initRecyclerView() {
+
+        Log.d(TAG, "Start: " + mRecipes.size());
+
+        for (Recipe removeRecipe : mRemoveRecipes) {
+            mRecipes.remove(removeRecipe);
+        }
+
+        Log.d(TAG, "End: " + mRecipes.size());
+
+        //Creates layout manager, adapter and sets them to the RecyclerView
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        recipeRecyclerView.setLayoutManager(layoutManager);
+        HomeRecipeRecyclerViewAdapter adapter = new HomeRecipeRecyclerViewAdapter(getActivity(), mRecipes);
+        recipeRecyclerView.setAdapter(adapter);
     }
 }
 

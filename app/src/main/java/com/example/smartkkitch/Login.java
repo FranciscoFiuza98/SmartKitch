@@ -124,6 +124,5 @@ public class Login extends AppCompatActivity {
         //Starts Register Activity
         Intent intent = new Intent(getApplicationContext(), Register.class);
         startActivity(intent);
-        finish();
     }
 }

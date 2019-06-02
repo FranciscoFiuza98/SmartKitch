@@ -96,15 +96,12 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                                 //Favorite ingredient data from database
                                 Map<String, Object> favoriteIngredient = document.getData();
 
-                                //If the recipe Ingredient is already in user's favorite ingredients, sets the checkbox to checked
-                                for (String key : favoriteIngredient.keySet()) {
-                                    String value = (String) favoriteIngredient.get(key);
+                                //Gets ingredient ID
+                                String favoriteIngredientId = document.getId();
 
-                                    if (key.equals("ingredientId")) {
-                                        if (value.equals(ingredientId)) {
-                                            viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
-                                        }
-                                    }
+                                //If the ingredient ID is the same as the current Ingredient ID, marks it as checked
+                                if (favoriteIngredientId.equals(ingredientId)) {
+                                    viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
                                 }
                             }
                         } else {
@@ -133,66 +130,36 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                 if (btnBitMap.sameAs(bitMapChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
 
-                    firestore.collection("Users").document(Objects.requireNonNull(currentUser.getEmail())).collection("FavoriteIngredients")
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    //Deletes ingredient from user's favorite ingredients collection
+                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredientRecipe.getId())
+                            .delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-
-                                            //Favorite ingredient data from database
-                                            Map<String, Object> favoriteIngredient = document.getData();
-
-                                            //If the recipe Ingredient is already in user's favorite ingredients, sets the checkbox to checked
-                                            for (String key : favoriteIngredient.keySet()) {
-                                                String value = (String) favoriteIngredient.get(key);
-
-                                                if (key.equals("ingredientId")) {
-                                                    if (value.equals(viewHolder.txtRecipeIngredientId.getText().toString())) {
-                                                        final String documentID = document.getId();
-
-                                                        Log.d(TAG, "Document ID: " + documentID);
-
-                                                        //Deletes ingredient from user's favorite ingredients collection
-                                                        firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(documentID)
-                                                                .delete()
-                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                    @Override
-                                                                    public void onSuccess(Void aVoid) {
-                                                                        Log.d(TAG, "" + documentID + " successfully deleted!");
-                                                                    }
-                                                                })
-                                                                .addOnFailureListener(new OnFailureListener() {
-                                                                    @Override
-                                                                    public void onFailure(@NonNull Exception e) {
-                                                                        Log.w(TAG, "Error deleting document", e);
-                                                                    }
-                                                                });
-
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        Log.w(TAG, "Error getting documents.", task.getException());
-                                    }
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "Ingredient deleted from favorites: " + ingredientRecipe.getId());
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    e.printStackTrace();
                                 }
                             });
+
 
                 } else if (btnBitMap.sameAs(bitMapNotChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
 
                     final Map<String, Object> newIngredient = new HashMap<>();
-                    newIngredient.put("ingredientId", viewHolder.txtRecipeIngredientId.getText().toString());
-                    newIngredient.put("name", viewHolder.txtIngredientName.getText().toString());
+                    newIngredient.put("imageUrl", ingredientRecipe.getImageUrl());
+                    newIngredient.put("name", ingredientRecipe.getName());
 
-                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document()
+                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredientRecipe.getId())
                             .set(newIngredient)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "New ingredient added!");
+                                    Log.d(TAG, "New ingredient added: " + newIngredient);
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
@@ -226,67 +193,36 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
 
                     //TODO prevent user from having less than 5 favorite ingredients in the database
 
-                    firestore.collection("Users").document(Objects.requireNonNull(currentUser.getEmail())).collection("FavoriteIngredients")
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    //Deletes ingredient from user's favorite ingredients collection
+                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredientRecipe.getId())
+                            .delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-
-                                            //Favorite ingredient data from database
-                                            Map<String, Object> favoriteIngredient = document.getData();
-
-                                            //If the recipe Ingredient is already in user's favorite ingredients, sets the checkbox to checked
-                                            for (String key : favoriteIngredient.keySet()) {
-                                                String value = (String) favoriteIngredient.get(key);
-
-                                                if (key.equals("ingredientId")) {
-                                                    if (value.equals(viewHolder.txtRecipeIngredientId.getText().toString())) {
-                                                        final String documentID = document.getId();
-
-                                                        Log.d(TAG, "Document ID: " + documentID);
-
-                                                        //Deletes ingredient from user's favorite ingredients collection
-                                                        firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(documentID)
-                                                                .delete()
-                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                    @Override
-                                                                    public void onSuccess(Void aVoid) {
-                                                                        Log.d(TAG, "" + documentID + " successfully deleted!");
-                                                                    }
-                                                                })
-                                                                .addOnFailureListener(new OnFailureListener() {
-                                                                    @Override
-                                                                    public void onFailure(@NonNull Exception e) {
-                                                                        Log.w(TAG, "Error deleting document", e);
-                                                                    }
-                                                                });
-
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        Log.w(TAG, "Error getting documents.", task.getException());
-                                    }
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "Ingredient deleted from favorites: " + ingredientRecipe.getId());
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    e.printStackTrace();
                                 }
                             });
 
                     //TODO Check if ingredient exists in Ingredients collection and if it has an imageURL, if not, get image URL from API before adding to theuser's favorite Ingredietns
                 } else if (btnBitMap.sameAs(bitMapNotChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
-                    
-                    final Map<String, Object> newIngredient = new HashMap<>();
-                    newIngredient.put("ingredientId", viewHolder.txtRecipeIngredientId.getText().toString());
-                    newIngredient.put("name", viewHolder.txtIngredientName.getText().toString());
 
-                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document()
+                    final Map<String, Object> newIngredient = new HashMap<>();
+                    newIngredient.put("imageUrl", ingredientRecipe.getImageUrl());
+                    newIngredient.put("name", ingredientRecipe.getName());
+
+                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredientRecipe.getId())
                             .set(newIngredient)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "New ingredient added!");
+                                    Log.d(TAG, "New ingredient added: " + newIngredient);
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
