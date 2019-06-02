@@ -96,8 +96,8 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
 
                     //Ingredient clicked HashMap object containing ingredient name and ID
                     final Map<String, Object> favoriteIngredient = new HashMap<>();
-                    favoriteIngredient.put("ingredientId", ingredient.getId());
                     favoriteIngredient.put("name", ingredient.getName());
+                    favoriteIngredient.put("imageUrl", ingredient.getImageUrl());
 
                     ingredients.remove(viewHolder.getAdapterPosition());
                     notifyItemRemoved(viewHolder.getAdapterPosition());
@@ -105,7 +105,7 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
 
                     //Adds ingredient to database
                     assert userEmail != null;
-                    firestore.collection("Users").document(userEmail).collection("FavoriteIngredients").document()
+                    firestore.collection("Users").document(userEmail).collection("FavoriteIngredients").document(ingredient.getId())
                             .set(favoriteIngredient)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
@@ -114,6 +114,7 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
                                     Toast.makeText(context, "" + ingredient.getName() + " added to favorite ingredients!", Toast.LENGTH_LONG).show();
                                 }
                             })
+
                             //TODO Find a way to force error to test the ingredient addition to the Recycler View
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override

@@ -178,19 +178,26 @@ public class FragmentRecipeIngredients extends Fragment {
                         Double ingredientAmount = metric.getDouble("amount");
                         String amountUnit = metric.getString("unitShort");
 
+                        IngredientRecipe ingredientRecipe = new IngredientRecipe(ingredientId, ingredientName, ingredientImageUrl, ingredientAmount.toString(), amountUnit);
 
-                        Map<String, Object> ingredientMap = new HashMap<>();
-                        ingredientMap.put("name", ingredientName);
-                        ingredientMap.put("imageUrl", ingredientImageUrl);
-                        ingredientMap.put("amount", ingredientAmount);
-                        ingredientMap.put("unit", amountUnit);
+                        mIngredientsList.add(ingredientRecipe);
 
-                        firestore.collection("Recipes").document(recipe.getId()).collection("Ingredients").document(ingredientId)
+                    }
+
+                    // Iterates over Ingredients List array and adds the ingredients to Ingredients Collection and Recipe's Ingredients Collection
+                    for (final IngredientRecipe ingredientRecipe: mIngredientsList) {
+
+                        final Map<String, Object> ingredientMap = new HashMap<>();
+                        ingredientMap.put("name", ingredientRecipe.getName());
+                        ingredientMap.put("imageUrl", ingredientRecipe.getImageUrl());
+
+                        //Saves ingredients in the Ingredients collection
+                        firestore.collection("Ingredients").document(ingredientRecipe.getId())
                                 .set(ingredientMap)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        Log.d(TAG, "Ingredient added: " + ingredientName);
+                                        Log.d(TAG, "Ingredient added: " + ingredientMap);
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
@@ -200,9 +207,30 @@ public class FragmentRecipeIngredients extends Fragment {
                                     }
                                 });
 
-                        IngredientRecipe ingredientRecipe = new IngredientRecipe(ingredientId, ingredientName, ingredientImageUrl, ingredientAmount.toString(), amountUnit);
 
-                        mIngredientsList.add(ingredientRecipe);
+                        final Map<String, Object> recipeIngredientMap = new HashMap<>();
+                        recipeIngredientMap.put("name", ingredientRecipe.getName());
+                        recipeIngredientMap.put("imageUrl", ingredientRecipe.getImageUrl());
+                        recipeIngredientMap.put("amount", ingredientRecipe.getAmount());
+                        recipeIngredientMap.put("unit", ingredientRecipe.getUnit());
+
+
+
+                        //Saves ingredients in the recipe Ingredients collection
+                        firestore.collection("Recipes").document(recipe.getId()).collection("Ingredients").document(ingredientRecipe.getId())
+                                .set(recipeIngredientMap)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "Recipe Ingredient added: " + recipeIngredientMap);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "onFailure: ", e);
+                                    }
+                                });
 
                     }
 

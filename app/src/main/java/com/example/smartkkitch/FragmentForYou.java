@@ -43,9 +43,9 @@ public class FragmentForYou extends Fragment{
         //Gets instances for each object inside fragment
         Button btnForYou = view.findViewById(R.id.btnForYou);
         Button btnMeat = view.findViewById(R.id.btnMeat);
-        RecyclerView recipeRecyclerView = view.findViewById(R.id.recipeRecyclerView);
+        final RecyclerView recipeRecyclerView = view.findViewById(R.id.recipeRecyclerView);
 
-        
+
         //TODO Recommend recipes based on other user's saved recipes
 
         firestore.collection("Recipes")
@@ -61,18 +61,20 @@ public class FragmentForYou extends Fragment{
 
                                 Recipe recipe = new Recipe(recipeId, recipeName, recipeImageUrl);
 
+
                                 mRecipes.add(recipe);
+
+                                //Creates layout manager, adapter and sets them to the RecyclerView
+                                LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+                                recipeRecyclerView.setLayoutManager(layoutManager);
+                                HomeRecipeRecyclerViewAdapter adapter = new HomeRecipeRecyclerViewAdapter(getActivity(), mRecipes);
+                                recipeRecyclerView.setAdapter(adapter);
                             }
                         }
                     }
                 });
 
 
-        //Creates layout manager, adapter and sets them to the RecyclerView
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        recipeRecyclerView.setLayoutManager(layoutManager);
-        HomeRecipeRecyclerViewAdapter adapter = new HomeRecipeRecyclerViewAdapter(getActivity(), mRecipes);
-        recipeRecyclerView.setAdapter(adapter);
 
 
 
