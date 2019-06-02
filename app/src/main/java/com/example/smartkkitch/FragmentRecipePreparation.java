@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -37,6 +38,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class FragmentRecipePreparation extends Fragment {
     private static final String TAG = "FragmentRecipePreparati";
@@ -62,7 +64,7 @@ public class FragmentRecipePreparation extends Fragment {
 
         mQueue = Volley.newRequestQueue(getActivity());
 
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
         View view = inflater.inflate(R.layout.fragment_recipe_preparation, container, false);
 
@@ -74,6 +76,8 @@ public class FragmentRecipePreparation extends Fragment {
         //Gets recipe used in home activity
         final Recipe recipe = ((RecipeActivity) getActivity()).getRecipe();
 
+
+        //Checks if recipe has preparation info in the database. If not, gets steps from API and saves them to the database
         firestore.collection("Recipes").document(recipe.getId()).collection("Steps")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

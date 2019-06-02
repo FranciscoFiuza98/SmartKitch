@@ -1,5 +1,6 @@
 package com.example.smartkkitch;
 
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,9 +24,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.internal.bind.ObjectTypeAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +37,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 //TODO make recipe images the same size
 public class FragmentRecipeSimilarRecipes extends Fragment {
@@ -84,16 +88,17 @@ public class FragmentRecipeSimilarRecipes extends Fragment {
                             if (result.size() == 0) {
                                 //Gets similar recipes
                                 getSimilarRecipes(currentRecipe);
-                                Log.d(TAG, "Getting similar recipes from API");
+
                             } else {
-                                Log.d(TAG, "Getting similar recipes from Firebase");
+
+                                Log.d(TAG, "Getting Similar Recipes from Firebase");
 
                                 for (QueryDocumentSnapshot document : result) {
                                     Map<String, Object> similarRecipe = document.getData();
 
-                                    String recipeId = document.getId();
-                                    String recipeName = similarRecipe.get("name").toString();
-                                    String recipeImageUrl = similarRecipe.get("imageUrl").toString();
+                                    final String recipeId = document.getId();
+                                    final String recipeName = similarRecipe.get("name").toString();
+                                    final String recipeImageUrl = similarRecipe.get("imageUrl").toString();
 
                                     Recipe newSimilarRecipe = new Recipe(recipeId, recipeName, recipeImageUrl);
 
@@ -140,18 +145,18 @@ public class FragmentRecipeSimilarRecipes extends Fragment {
 
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
-            public void onResponse(JSONArray response) {
+            public void onResponse(final JSONArray response) {
 
                 for (int i = 0; i < response.length(); i++) {
 
                     try {
                         JSONObject similarRecipe = response.getJSONObject(i);
 
-                        int recipeId = similarRecipe.getInt("id");
+                        final int recipeId = similarRecipe.getInt("id");
                         String recipeName = similarRecipe.getString("title");
                         String recipeImageUrl = recipeUrl + similarRecipe.getString("image");
 
-                        Recipe newSimilarRecipe = new Recipe(Integer.toString(recipeId), recipeName, recipeImageUrl);
+                        final Recipe newSimilarRecipe = new Recipe(Integer.toString(recipeId), recipeName, recipeImageUrl);
 
                         mRecipes.add(newSimilarRecipe);
 
@@ -165,15 +170,28 @@ public class FragmentRecipeSimilarRecipes extends Fragment {
                 //TODO save similar recipes in the Recipes collection, change the current saving to save only the id of the similar recipes
                 for (Recipe recipe : mRecipes) {
 
-                    String recipeId = recipe.getId();
-                    String recipeName = recipe.getName();
-                    String recipeImageUrl = recipe.getImageUrl();
+                    //Gets recipe information from recipe object
+                    final String recipeId = recipe.getId();
+                    final String recipeName = recipe.getName();
+                    final String recipeImageUrl = recipe.getImageUrl();
 
+                    //Creates a HashMap with recipe info
                     final HashMap<String, Object> newSimilarRecipe = new HashMap<>();
                     newSimilarRecipe.put("id", recipeId);
                     newSimilarRecipe.put("name", recipeName);
                     newSimilarRecipe.put("imageUrl", recipeImageUrl);
 
+                    //Adds recipe to the Recipes collection in the database
+                    firestore.collection("Recipes").document(recipeId)
+                            .set(newSimilarRecipe)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "Added Recipe info to the Recipes collection: " + newSimilarRecipe);
+                                }
+                            });
+
+                    //Adds recipe to the similar recipes collection in the current recipe document in the firebase
                     firestore.collection("Recipes").document(currentRecipe.getId()).collection("Similar").document(recipeId)
                             .set(newSimilarRecipe)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -189,8 +207,11 @@ public class FragmentRecipeSimilarRecipes extends Fragment {
                                 }
                             });
 
+
+
                 }
 
+                //Initializes recycler view
                 initRecyclerView(mRecipes);
 
 

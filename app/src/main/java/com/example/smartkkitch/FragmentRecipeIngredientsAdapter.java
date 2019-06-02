@@ -118,9 +118,6 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
             @Override
             public void onClick(View v) {
 
-                Log.d(TAG, "Ingredient ID: " + viewHolder.txtRecipeIngredientId.getText().toString());
-                Log.d(TAG, "Ingredient Name: " + viewHolder.txtIngredientName.getText().toString());
-
                 //Gets bitmap of the current image of the button
                 final Bitmap btnBitMap = ((BitmapDrawable) viewHolder.btnCheckbox.getDrawable()).getBitmap();
 
@@ -276,6 +273,7 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                                 }
                             });
 
+                    //TODO Check if ingredient exists in Ingredients collection and if it has an imageURL, if not, get image URL from API before adding to theuser's favorite Ingredietns
                 } else if (btnBitMap.sameAs(bitMapNotChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
                     

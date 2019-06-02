@@ -29,6 +29,7 @@ import com.squareup.picasso.Picasso;
 import java.nio.BufferUnderflowException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class RecipeActivity extends AppCompatActivity {
 
@@ -78,18 +79,19 @@ public class RecipeActivity extends AppCompatActivity {
             txtRecipeName.setText(recipeName);
         }
 
-        mSectionsStatePagerAdapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
-        mViewPager = findViewById(R.id.recipeIngredientsPager);
-
+        //Firebase Instances
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
 
+        //Bottom Navigation Bar
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Menu menu = navView.getMenu();
         MenuItem menuItem = menu.getItem(0);
         menuItem.setChecked(true);
 
+        //Fragments View Pager
+        mViewPager = findViewById(R.id.recipeIngredientsPager);
         setupViewPager(mViewPager);
 
     }
@@ -113,6 +115,7 @@ public class RecipeActivity extends AppCompatActivity {
      return recipe;
     }
 
+    //Saves recipe to the user collection
     private void saveRecipe() {
         final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
@@ -149,7 +152,7 @@ public class RecipeActivity extends AppCompatActivity {
                                         }
                                     });
 
-                            //Checks if saved recipe has exists or has information about it, if not, adds it
+                            //Checks if saved recipe exists in Recipes collection or has information about it, if not, adds it
                             firestore.collection("Recipes").document(currentRecipe.getId())
                                     .get()
                                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -198,6 +201,7 @@ public class RecipeActivity extends AppCompatActivity {
                 });
 
     }
+
 
     //Bottom navigation on item select listener
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener

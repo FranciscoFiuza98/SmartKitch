@@ -51,6 +51,7 @@ public class FragmentRecipeIngredients extends Fragment {
 
     private RecyclerView mRecyclerView;
 
+    private FirebaseFirestore firestore;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
 
@@ -58,13 +59,14 @@ public class FragmentRecipeIngredients extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        mAuth = FirebaseAuth.getInstance();
-        user = mAuth.getCurrentUser();
-
         //Inflates Recipe Ingredient Fragment layout and adds it to the view
         View view = inflater.inflate(R.layout.fragment_recipe_ingredients, container, false);
 
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        //Firebase instances
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
+        firestore = FirebaseFirestore.getInstance();
+
         mQueue = Volley.newRequestQueue((Objects.requireNonNull(getActivity())));
 
         //Gets reference of objects in fragment
@@ -75,8 +77,6 @@ public class FragmentRecipeIngredients extends Fragment {
 
         //Gets recipe used in home activity
         final Recipe recipe = ((RecipeActivity)getActivity()).getRecipe();
-
-        Log.d(TAG, "Recipe Id: " + recipe.getId());
 
         firestore.collection("Recipes").document(recipe.getId()).collection("Ingredients")
                 .get()
@@ -107,7 +107,7 @@ public class FragmentRecipeIngredients extends Fragment {
 
                                 }
 
-                                initRecyclerView(mIngredientsList);
+                                initRecyclerView();
                             }
 
                         }else {
@@ -206,7 +206,7 @@ public class FragmentRecipeIngredients extends Fragment {
 
                     }
 
-                    initRecyclerView(mIngredientsList);
+                    initRecyclerView();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -234,14 +234,14 @@ public class FragmentRecipeIngredients extends Fragment {
 
     }
 
-    private void initRecyclerView(ArrayList<IngredientRecipe> arrayIngredients) {
+    private void initRecyclerView() {
 
         //TODO fix repetetive adding ingredients
 
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(layoutManager);
-        FragmentRecipeIngredientsAdapter adapter = new FragmentRecipeIngredientsAdapter(getActivity(), arrayIngredients, user);
+        FragmentRecipeIngredientsAdapter adapter = new FragmentRecipeIngredientsAdapter(getActivity(), mIngredientsList, user);
         mRecyclerView.setAdapter(adapter);
 
     }

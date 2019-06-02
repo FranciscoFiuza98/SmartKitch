@@ -7,11 +7,20 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirestoreRegistrar;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -19,10 +28,9 @@ import java.util.Objects;
 public class FragmentForYou extends Fragment{
     private static final String TAG = "FragmentForYou";
 
+    FirebaseFirestore firestore;
+
     //Lists for recipe information and Recipe object
-    private ArrayList<String> mArrayRecipeIds = new ArrayList<>();
-    private ArrayList<String> mArrayRecipeNames = new ArrayList<>();
-    private ArrayList<String> mArrayRecipeImageUrls = new ArrayList<>();
     private ArrayList<Recipe> mRecipes = new ArrayList<>();
 
     @Nullable
@@ -30,44 +38,35 @@ public class FragmentForYou extends Fragment{
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_for_you, container, false);
 
+        firestore = FirebaseFirestore.getInstance();
+
         //Gets instances for each object inside fragment
         Button btnForYou = view.findViewById(R.id.btnForYou);
         Button btnMeat = view.findViewById(R.id.btnMeat);
         RecyclerView recipeRecyclerView = view.findViewById(R.id.recipeRecyclerView);
 
+        
+        //TODO Recommend recipes based on other user's saved recipes
 
-        //TODO Get recipe data from API && Create collection in database that saves the recipe information including the ingredients to save API requests
-        //Fills Recipe IDs array
-        mArrayRecipeIds.add("556768");
-        mArrayRecipeIds.add("855089");
-        mArrayRecipeIds.add("107697");
-        mArrayRecipeIds.add("760573");
-        mArrayRecipeIds.add("44446");
+        firestore.collection("Recipes")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document: Objects.requireNonNull(task.getResult())) {
+                                String recipeId = document.getId();
+                                String recipeName = document.get("name").toString();
+                                String recipeImageUrl = document.get("imageUrl").toString();
 
-        //Fills Recipe Names array
-        mArrayRecipeNames.add("Orange Carrot Ginger Juice {No Added Sugar, Dairy & Gluten Free}");
-        mArrayRecipeNames.add("Rainbow Vegetable Hummus Box");
-        mArrayRecipeNames.add("Yummy to the Tummy Clock");
-        mArrayRecipeNames.add("Edamame Fried Rice");
-        mArrayRecipeNames.add("Radish Slaw with New York Deli Dressing");
+                                Recipe recipe = new Recipe(recipeId, recipeName, recipeImageUrl);
 
-        //Fills recipe Image Urls array
-        mArrayRecipeImageUrls.add("https://spoonacular.com/recipeImages/556768-312x231.jpg");
-        mArrayRecipeImageUrls.add("https://spoonacular.com/recipeImages/855089-312x231.jpg");
-        mArrayRecipeImageUrls.add("https://spoonacular.com/recipeImages/107697-312x231.jpg");
-        mArrayRecipeImageUrls.add("https://spoonacular.com/recipeImages/760573-312x231.jpg");
-        mArrayRecipeImageUrls.add("https://spoonacular.com/recipeImages/44446-312x231.jpg");
+                                mRecipes.add(recipe);
+                            }
+                        }
+                    }
+                });
 
-        //Creates Recipe object with the information given in each array and adds object to mRecipes array
-        for (int i = 0; i < mArrayRecipeIds.size(); i++) {
-            String recipeId = mArrayRecipeIds.get(i);
-            String recipeName = mArrayRecipeNames.get(i);
-            String recipeImageUrl = mArrayRecipeImageUrls.get(i);
-
-            Recipe recipe = new Recipe(recipeId, recipeName, recipeImageUrl);
-
-            mRecipes.add(recipe);
-        }
 
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
