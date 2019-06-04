@@ -10,12 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AbsListView;
-import android.widget.Button;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,67 +20,41 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
 
-public class GenerateActivity extends AppCompatActivity {
+public class MyIngredientsActivity extends AppCompatActivity {
 
-    private static final String TAG = "GenerateActivity";
+    private static final String TAG = "MyIngredientsActivity";
 
-    private ArrayList<Ingredient> mFavoriteIngredients = new ArrayList<>();
+    private ArrayList<Ingredient> mIngredients = new ArrayList<>();
 
-    FirebaseFirestore firestore;
-    FirebaseAuth mAuth;
-    FirebaseUser currentUser;
+    private RecyclerView myIngredientsRecyclerView;
 
-    GenerateAdapter adapter;
-
-    Button btnGenerate;
-    RecyclerView generateRecyclerView;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_generate);
+        setContentView(R.layout.activity_my_ingredients);
+
+        myIngredientsRecyclerView = findViewById(R.id.myIngredientsRecyclerView);
+
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        firestore = FirebaseFirestore.getInstance();
 
         //Bottom Navigation Bar
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Menu menu = navView.getMenu();
-        MenuItem menuItem = menu.getItem(1);
+        MenuItem menuItem = menu.getItem(2);
         menuItem.setChecked(true);
 
-        //Gets Firestore and FirebaseAuth instances and gets current user
-        firestore = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-        currentUser = mAuth.getCurrentUser();
-
-        //Gets Recycler View reference
-        generateRecyclerView = findViewById(R.id.generateRecyclerView);
-        btnGenerate = findViewById(R.id.btnGenerate);
-        btnGenerate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                generateRecipe();
-            }
-        });
-
-        //Gets user's favorite ingredients and adds them to the recycler view
-        getUserFavoriteIngredients();
+        getIngredients();
     }
 
-    private void generateRecipe() {
-
-        ArrayList<String> selectedIngredients = adapter.getSelectedIngredients();
-
-        Intent intent = new Intent(this, GeneratedRecipesActivity.class);
-        intent.putExtra("selectedIngredients", selectedIngredients);
-
-        startActivity(intent);
-
-    }
-
-    private void getUserFavoriteIngredients() {
+    private void getIngredients() {
 
         firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients")
                 .get()
@@ -92,44 +62,34 @@ public class GenerateActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
 
-                                //Favorite ingredient data from database
-                                Map<String, Object> data = document.getData();
+                            for(QueryDocumentSnapshot document: task.getResult()) {
 
-                                String ingredientId = document.getId();
-                                String ingredientName = data.get("name").toString();
-                                String ingredientImageUrl = data.get("imageUrl").toString();
+                                String id = document.getId();
+                                String name = document.get("name").toString();
+                                String imageUrl = document.get("imageUrl").toString();
 
-                                Ingredient favoriteIngredient = new Ingredient(ingredientId, ingredientName, ingredientImageUrl);
+                                Ingredient ingredient = new Ingredient(id, name, imageUrl);
 
-                                mFavoriteIngredients.add(favoriteIngredient);
+                                mIngredients.add(ingredient);
+
                             }
 
                             initRecyclerView();
+
                         }
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                    }
                 });
-
     }
-
 
     private void initRecyclerView() {
 
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        generateRecyclerView.setLayoutManager(layoutManager);
-        adapter = new GenerateAdapter(this, mFavoriteIngredients);
-        generateRecyclerView.setAdapter(adapter);
-
+        myIngredientsRecyclerView.setLayoutManager(layoutManager);
+        GenerateAdapter adapter = new GenerateAdapter(this, mIngredients);
+        myIngredientsRecyclerView.setAdapter(adapter);
     }
-
 
     //Bottom navigation on item select listener
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -149,10 +109,10 @@ public class GenerateActivity extends AppCompatActivity {
                     startActivity(myRecipesIntent);
                     return true;
                 case R.id.navigation_notifications:
+                    Intent generateIntent = new Intent(getApplicationContext(), GenerateActivity.class);
+                    startActivity(generateIntent);
                     return true;
                 case R.id.navigation_ingredients:
-                    Intent ingredientsIntent = new Intent(getApplicationContext(), MyIngredientsActivity.class);
-                    startActivity(ingredientsIntent);
                     return true;
             }
             return false;

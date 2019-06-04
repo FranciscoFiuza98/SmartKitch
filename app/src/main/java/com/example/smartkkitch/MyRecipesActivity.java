@@ -47,7 +47,7 @@ public class MyRecipesActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Menu menu = navView.getMenu();
-        MenuItem menuItem = menu.getItem(2);
+        MenuItem menuItem = menu.getItem(3);
         menuItem.setChecked(true);
 
         mAuth = FirebaseAuth.getInstance();
@@ -77,6 +77,10 @@ public class MyRecipesActivity extends AppCompatActivity {
                 case R.id.navigation_notifications:
                     Intent generateIntent = new Intent(getApplicationContext(), GenerateActivity.class);
                     startActivity(generateIntent);
+                    return true;
+                case R.id.navigation_ingredients:
+                    Intent ingredientsIntent = new Intent(getApplicationContext(), MyIngredientsActivity.class);
+                    startActivity(ingredientsIntent);
                     return true;
             }
             return false;

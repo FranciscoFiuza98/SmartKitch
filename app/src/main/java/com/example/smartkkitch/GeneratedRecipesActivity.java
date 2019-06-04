@@ -218,6 +218,10 @@ public class GeneratedRecipesActivity extends AppCompatActivity {
                     return true;
                 case R.id.navigation_notifications:
                     return true;
+                case R.id.navigation_ingredients:
+                    Intent ingredientsIntent = new Intent(getApplicationContext(), MyIngredientsActivity.class);
+                    startActivity(ingredientsIntent);
+                    return true;
             }
             return false;
         }

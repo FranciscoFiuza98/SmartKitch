@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 
 
+//TODO If there are more than 10 steps, it shows them in wrong order------> Fix
 public class FragmentRecipePreparationAdapter extends RecyclerView.Adapter<FragmentRecipePreparationAdapter.ViewHolder>{
 
     private static final String TAG = "PreparationAdapter";

@@ -75,7 +75,7 @@ public class GenerateAdapter extends RecyclerView.Adapter<GenerateAdapter.ViewHo
         //Changes sets the textview's text to the ingredient name in the layout
         viewHolder.generateIngredientName.setText(ingredientName);
 
-        //On click listener for the card
+        /*//On click listener for the card
         viewHolder.generateIngredientCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,7 +96,7 @@ public class GenerateAdapter extends RecyclerView.Adapter<GenerateAdapter.ViewHo
 
                     mSelectedIngredients.remove(ingredientName);
 
-                 //If the image is not checked, adds the ingredient to the selected ingredients array and changes the image
+                    //If the image is not checked, adds the ingredient to the selected ingredients array and changes the image
                 } else if (btnBitMap.sameAs(bitMapNotChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
 
@@ -105,7 +105,7 @@ public class GenerateAdapter extends RecyclerView.Adapter<GenerateAdapter.ViewHo
 
                 }
             }
-        });
+        });*/
 
         //On click listener for the image button
         viewHolder.btnCheckbox.setOnClickListener(new View.OnClickListener() {
@@ -133,6 +133,8 @@ public class GenerateAdapter extends RecyclerView.Adapter<GenerateAdapter.ViewHo
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
 
                     mSelectedIngredients.add(ingredientName);
+
+                    Log.d(TAG, "Selected Ingredients: " + mSelectedIngredients);
 
                 }
             }

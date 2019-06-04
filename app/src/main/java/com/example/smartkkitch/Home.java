@@ -205,6 +205,10 @@ public class Home extends AppCompatActivity {
                     Intent generateIntent = new Intent(getApplicationContext(), GenerateActivity.class);
                     startActivity(generateIntent);
                     return true;
+                case R.id.navigation_ingredients:
+                    Intent ingredientsIntent = new Intent(getApplicationContext(), MyIngredientsActivity.class);
+                    startActivity(ingredientsIntent);
+                    return true;
             }
             return false;
         }

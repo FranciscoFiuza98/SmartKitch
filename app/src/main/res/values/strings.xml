@@ -51,6 +51,7 @@
     <string name="my_recipes">My Recipes</string>
     <string name="ingredients_used">Ingredients Used:</string>
     <string name="ingredients_missed">Ingredients Missed:</string>
+    <string name="my_ingredients">My Ingredients</string>
 
 
 </resources>
