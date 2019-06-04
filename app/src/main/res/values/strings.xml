@@ -30,7 +30,6 @@
     <string name="recipe_name">Recipe Name</string>
     <string name="_5">5</string>
     <string name="save_recipe">Save Recipe</string>
-    <string name="textview">TextView</string>
 
     <string name="preparation">Preparation</string>
     <string name="ingredients">Ingredients</string>
@@ -50,5 +49,8 @@
     <string name="recipes">Recipes</string>
     <string name="generate">Generate</string>
     <string name="my_recipes">My Recipes</string>
+    <string name="ingredients_used">Ingredients Used:</string>
+    <string name="ingredients_missed">Ingredients Missed:</string>
+
 
 </resources>

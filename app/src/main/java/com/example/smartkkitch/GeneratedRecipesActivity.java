@@ -2,9 +2,14 @@ package com.example.smartkkitch;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -39,6 +44,8 @@ public class GeneratedRecipesActivity extends AppCompatActivity {
     private ArrayList<String> mSelectedIngredients;
     private ArrayList<GeneratedRecipe> mGeneratedRecipes = new ArrayList<>();
 
+    private RecyclerView generatedRecipesRecyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,21 +55,32 @@ public class GeneratedRecipesActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
 
+        //Bottom Navigation Bar
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        Menu menu = navView.getMenu();
+        MenuItem menuItem = menu.getItem(1);
+        menuItem.setChecked(true);
+
         //Gets selected ingredients from intent extras
         mSelectedIngredients = extras.getStringArrayList("selectedIngredients");
 
         mQueue = Volley.newRequestQueue(this);
+
+        generatedRecipesRecyclerView = findViewById(R.id.generatedRecipesRecyclerView);
 
         generateRecipes();
     }
 
     private void generateRecipes() {
 
-        String example = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/findByIngredients?number=5&ranking=1&ignorePantry=false&ingredients=bacon%2Cpork+tenderloins%2C+green+grapes%2C+egg";
+        //Base url for generating recipe
         String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/findByIngredients?number=20&ranking=1&ignorePantry=false&ingredients=";
+
+        //Selected ingredients to be added to the url
         StringBuilder urlIngredients = new StringBuilder();
 
-
+        //Adds all selected ingredients to the urlIngredients
         for (int i = 0; i < mSelectedIngredients.size(); i++)
         {
             String selectedIngredient = mSelectedIngredients.get(i);
@@ -76,43 +94,44 @@ public class GeneratedRecipesActivity extends AppCompatActivity {
 
         }
 
+        //Switches spaces with "+" in urlIngredients string
         String newUrlIngredients = urlIngredients.toString();
-
         newUrlIngredients = newUrlIngredients.replace(' ', '+');
 
+        //Adds urlIngredients to the base url
         url += newUrlIngredients;
 
+        //Sends api request to the URL
         getGeneratedRecipes(url);
 
     }
 
     private void getGeneratedRecipes(String url) {
 
-        Log.d(TAG, "Url: " + url);
-
+        //Sends Api request
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(final JSONArray response) {
 
-                Log.d(TAG, "Got Response");
-
+                //Iterates over generated recipes
                 for (int i = 0; i < response.length(); i++) {
 
                     try {
+                        //Generated recipe Json object
                         JSONObject generatedRecipe = response.getJSONObject(i);
 
-                        Log.d(TAG, "Response: " + generatedRecipe);
-
+                        //Recipe information
                         int recipeId = generatedRecipe.getInt("id");
                         String recipeName = generatedRecipe.getString("title");
                         String recipeImageUrl = generatedRecipe.getString("image");
                         int recipeUsedIngredients = generatedRecipe.getInt("usedIngredientCount");
                         int recipeMissedIngredients = mSelectedIngredients.size() - recipeUsedIngredients;
-                        //int recipeMissedIngredients = generatedRecipe.getInt("missedIngredientCount");
                         int recipeLikes = generatedRecipe.getInt("likes");
 
+                        //Generated recipe object
                         GeneratedRecipe newGeneratedRecipe = new GeneratedRecipe(Integer.toString(recipeId), recipeName, recipeImageUrl, Integer.toString(recipeUsedIngredients), Integer.toString(recipeMissedIngredients), Integer.toString(recipeLikes));
 
+                        //Adds generated recipe to the array
                         mGeneratedRecipes.add(newGeneratedRecipe);
 
                     } catch (JSONException e) {
@@ -121,6 +140,7 @@ public class GeneratedRecipesActivity extends AppCompatActivity {
 
                 }
 
+                //Saves each generated recipe in the database
                 for(GeneratedRecipe generatedRecipe: mGeneratedRecipes) {
 
                     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -145,6 +165,8 @@ public class GeneratedRecipesActivity extends AppCompatActivity {
                             });
 
                 }
+
+                initRecyclerView();
             }
 
         }, new Response.ErrorListener() {
@@ -163,7 +185,41 @@ public class GeneratedRecipesActivity extends AppCompatActivity {
             }
         };
 
+        //Adds request to the queue
         mQueue.add(request);
 
     }
+
+    private void initRecyclerView() {
+
+        //Creates layout manager, adapter and sets them to the RecyclerView
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        generatedRecipesRecyclerView.setLayoutManager(layoutManager);
+        GeneratedRecipesAdapter adapter = new GeneratedRecipesAdapter(this, mGeneratedRecipes);
+        generatedRecipesRecyclerView.setAdapter(adapter);
+    }
+
+    //Bottom navigation on item select listener
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+            //Switches between the item selected and starts corresponding activity
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    Intent homeIntent = new Intent(getApplicationContext(), Home.class);
+                    startActivity(homeIntent);
+                    return true;
+                case R.id.navigation_dashboard:
+                    Intent myRecipesIntent = new Intent(getApplicationContext(), MyRecipesActivity.class);
+                    startActivity(myRecipesIntent);
+                    return true;
+                case R.id.navigation_notifications:
+                    return true;
+            }
+            return false;
+        }
+    };
 }
