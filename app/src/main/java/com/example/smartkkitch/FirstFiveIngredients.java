@@ -108,6 +108,11 @@ public class FirstFiveIngredients extends AppCompatActivity {
     //Initializes Recycler View
     private void initRecyclerView() {
 
+        while (mIngredients.size() > 20) {
+            mIngredients.remove(mIngredients.size() - 1);
+            Log.d(TAG, "Size: " + mIngredients.size());
+        }
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         //Creates layout manager and adapter and sets them to the RecyclerView

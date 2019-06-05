@@ -12,6 +12,13 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp">
 
+        <TextView
+            android:id="@+id/clickTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:text="TextView" />
+
         <ImageView
             android:id="@+id/imgImage"
             android:layout_width="100dp"
@@ -50,6 +57,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/txtChecked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:text="NotChecked"
             android:visibility="invisible" />
     </android.support.v7.widget.CardView>
 </RelativeLayout>

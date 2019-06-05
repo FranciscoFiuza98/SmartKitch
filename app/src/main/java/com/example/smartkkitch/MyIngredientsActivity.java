@@ -87,7 +87,7 @@ public class MyIngredientsActivity extends AppCompatActivity {
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         myIngredientsRecyclerView.setLayoutManager(layoutManager);
-        GenerateAdapter adapter = new GenerateAdapter(this, mIngredients);
+        MyIngredientsAdapter adapter = new MyIngredientsAdapter(this, mIngredients);
         myIngredientsRecyclerView.setAdapter(adapter);
     }
 

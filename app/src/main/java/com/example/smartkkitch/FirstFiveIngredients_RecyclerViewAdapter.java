@@ -41,6 +41,8 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
     private ArrayList<Ingredient> ingredients;
     private ArrayList<Ingredient> favoriteIngredients = new ArrayList<>();
 
+    private int firstBind = 0;
+
     //Activity context
     private Context context;
 
@@ -63,6 +65,11 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
         return new ViewHolder(view);
     }
 
+    /*
+    TODO Fix repetetive checking:
+        - Find a way to change the button image only for that ingredient (Compare ID).
+        - Try putting a TextView in the card and changing it on click to see if its the card's, button or image problem*/
+
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
 
@@ -81,8 +88,11 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
         //Adds ingredient id to the hidden id field in each card
         viewHolder.id.setText(ingredient.getId());
 
+        viewHolder.btnCheckbox.setTag(ingredient.getId());
+
         //OnClick listener for each card
         viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
+            String check = ingredient.getId();
             @Override
             public void onClick(View v) {
 
@@ -133,6 +143,9 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
                 }
                 else if (currentContext.equals(firstFiveIngredientsContext)){
 
+                    Log.d(TAG, "Ingredient ID: " + ingredient.getId());
+                    Log.d(TAG, "Tag: " + viewHolder.btnCheckbox.getTag());
+
                     //Toast.makeText(context, arrayIds.get(i), Toast.LENGTH_LONG).show();
 
                     //Gets bitmap of the current image of the button
@@ -147,13 +160,15 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
                     final Bitmap bitMapNotChecked = ((BitmapDrawable) notChecked).getBitmap();
 
                     //Checks which image is currently associated to the button, and changes it to the other one (if "checked" changes to "unchecked" and vice versa
-                    if (btnBitMap.sameAs(bitMapChecked)) {
+                    if (btnBitMap.sameAs(bitMapChecked) && viewHolder.btnCheckbox.getTag().equals(ingredient.getId())) {
                         viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
 
                         favoriteIngredients.remove(ingredients.get(i));
 
-                    } else if (btnBitMap.sameAs(bitMapNotChecked)) {
+                    } else if (btnBitMap.sameAs(bitMapNotChecked) && viewHolder.btnCheckbox.getTag().equals(ingredient.getId())) {
                         viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+
+                        viewHolder.clickTest.setText("Clicked");
 
                         favoriteIngredients.add(ingredients.get(i));
                     }
@@ -181,6 +196,8 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
         ImageView image;
         TextView name;
         TextView id;
+        TextView txtChecked;
+        TextView clickTest;
         ImageButton btnCheckbox;
         CardView cardView;
 
@@ -188,9 +205,11 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
             super(itemView);
 
             //Gets references to the items in each card
+            clickTest = itemView.findViewById(R.id.clickTest);
             image = itemView.findViewById(R.id.imgImage);
             name = itemView.findViewById(R.id.txtName);
             id = itemView.findViewById(R.id.txtId);
+            txtChecked = itemView.findViewById(R.id.txtChecked);
             btnCheckbox = itemView.findViewById(R.id.btnCheckbox);
             cardView = itemView.findViewById(R.id.cardView);
         }

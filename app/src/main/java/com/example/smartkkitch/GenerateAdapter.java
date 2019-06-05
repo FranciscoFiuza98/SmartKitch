@@ -65,6 +65,8 @@ public class GenerateAdapter extends RecyclerView.Adapter<GenerateAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
 
+        Log.d(TAG, "I: " + i);
+
 
         //Gets IngredientRecipe object
         final Ingredient ingredient = mIngredients.get(i);
@@ -74,6 +76,7 @@ public class GenerateAdapter extends RecyclerView.Adapter<GenerateAdapter.ViewHo
 
         //Changes sets the textview's text to the ingredient name in the layout
         viewHolder.generateIngredientName.setText(ingredientName);
+        viewHolder.btnCheckbox.setTag("Not Checked");
 
         /*//On click listener for the card
         viewHolder.generateIngredientCard.setOnClickListener(new View.OnClickListener() {
@@ -111,8 +114,31 @@ public class GenerateAdapter extends RecyclerView.Adapter<GenerateAdapter.ViewHo
         viewHolder.btnCheckbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Gets bitmap of the current image of the button
+
+                String btnTag = (String) viewHolder.btnCheckbox.getTag();
+
+                if (btnTag.equals("Not Checked")) {
+
+                    viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+                    viewHolder.btnCheckbox.setTag("Checked");
+
+                    mSelectedIngredients.add(ingredientName);
+
+                }
+                else if (btnTag.equals("Checked")) {
+
+                    viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
+                    viewHolder.btnCheckbox.setTag("Not Checked");
+
+                    mSelectedIngredients.remove(ingredientName);
+
+                }
+
+
+                /*//Gets bitmap of the current image of the button
                 final Bitmap btnBitMap = ((BitmapDrawable) viewHolder.btnCheckbox.getDrawable()).getBitmap();
+
+                Log.d(TAG, "TAG: " + viewHolder.btnCheckbox.getTag());
 
                 //Gets drawables for the "checked" and "notchecked" images
                 Drawable checked = context.getResources().getDrawable(R.drawable.checked);
@@ -125,18 +151,20 @@ public class GenerateAdapter extends RecyclerView.Adapter<GenerateAdapter.ViewHo
                 //If the image is checked, removes the ingredient from the selected ingredients array and changes the image
                 if (btnBitMap.sameAs(bitMapChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
+                    viewHolder.btnCheckbox.setTag("Not Checked");
 
                     mSelectedIngredients.remove(ingredientName);
 
                     //If the image is not checked, adds the ingredient to the selected ingredients array and changes the image
                 } else if (btnBitMap.sameAs(bitMapNotChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+                    viewHolder.btnCheckbox.setTag("Checked");
 
                     mSelectedIngredients.add(ingredientName);
 
                     Log.d(TAG, "Selected Ingredients: " + mSelectedIngredients);
 
-                }
+                }*/
             }
         });
     }
