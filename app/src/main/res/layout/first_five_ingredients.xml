@@ -12,13 +12,6 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp">
 
-        <TextView
-            android:id="@+id/clickTest"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:text="TextView" />
-
         <ImageView
             android:id="@+id/imgImage"
             android:layout_width="100dp"

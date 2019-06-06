@@ -92,7 +92,6 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
 
         //OnClick listener for each card
         viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
-            String check = ingredient.getId();
             @Override
             public void onClick(View v) {
 
@@ -168,8 +167,6 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
                     } else if (btnBitMap.sameAs(bitMapNotChecked) && viewHolder.btnCheckbox.getTag().equals(ingredient.getId())) {
                         viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
 
-                        viewHolder.clickTest.setText("Clicked");
-
                         favoriteIngredients.add(ingredients.get(i));
                     }
                 }
@@ -197,7 +194,6 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
         TextView name;
         TextView id;
         TextView txtChecked;
-        TextView clickTest;
         ImageButton btnCheckbox;
         CardView cardView;
 
@@ -205,7 +201,6 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
             super(itemView);
 
             //Gets references to the items in each card
-            clickTest = itemView.findViewById(R.id.clickTest);
             image = itemView.findViewById(R.id.imgImage);
             name = itemView.findViewById(R.id.txtName);
             id = itemView.findViewById(R.id.txtId);

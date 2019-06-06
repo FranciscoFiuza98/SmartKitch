@@ -1,6 +1,7 @@
 package com.example.smartkkitch;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -38,15 +39,15 @@ public class RecipeActivity extends AppCompatActivity {
     private SectionsStatePagerAdapter mSectionsStatePagerAdapter;
     private ViewPager mViewPager;
 
-    FirebaseAuth mAuth;
-    FirebaseUser currentUser;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private FirebaseFirestore firestore;
 
-    ImageView imgRecipeImage;
-    TextView txtRecipeName;
-    String recipeId;
-    String recipeName;
-    String recipeImageUrl;
-    Button btnSaveRecipe;
+
+    private ImageView imgRecipeImage;
+    private TextView txtRecipeName;
+    private String recipeId, recipeName, recipeImageUrl;
+    private Button btnSaveRecipe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,7 @@ public class RecipeActivity extends AppCompatActivity {
         btnSaveRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveRecipe();
+                recipeAction();
             }
         });
 
@@ -82,6 +83,9 @@ public class RecipeActivity extends AppCompatActivity {
         //Firebase Instances
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+        firestore = FirebaseFirestore.getInstance();
+
+        checkIfRecipeSaved();
 
         //Bottom Navigation Bar
         BottomNavigationView navView = findViewById(R.id.nav_view);
@@ -115,6 +119,41 @@ public class RecipeActivity extends AppCompatActivity {
      return recipe;
     }
 
+    private void recipeAction() {
+
+        String buttonText = btnSaveRecipe.getText().toString();
+
+        if (buttonText.equals("Save Recipe")) {
+            saveRecipe();
+        } else if (buttonText.equals("Remove Recipe")) {
+            removeRecipe();
+        }
+
+        Log.d(TAG, "Button Text: " + buttonText);
+
+    }
+
+    private void removeRecipe() {
+
+        Recipe currentRecipe = getRecipe();
+
+        firestore.collection("Users").document(currentUser.getEmail()).collection("SavedRecipes").document(currentRecipe.getId())
+                .delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+
+                            Toast.makeText(RecipeActivity.this, "Recipe Removed", Toast.LENGTH_SHORT).show();
+                            btnSaveRecipe.setText("Save Recipe");
+                            btnSaveRecipe.setBackgroundColor(Color.GREEN);
+
+                        }
+                    }
+                });
+
+    }
+
     //Saves recipe to the user collection
     private void saveRecipe() {
         final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -143,6 +182,8 @@ public class RecipeActivity extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             Toast.makeText(RecipeActivity.this, "Recipe Saved", Toast.LENGTH_SHORT).show();
+                                            btnSaveRecipe.setText("Remove Recipe");
+                                            btnSaveRecipe.setBackgroundColor(Color.RED);
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
@@ -197,6 +238,37 @@ public class RecipeActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         e.printStackTrace();
+                    }
+                });
+
+    }
+
+    private void checkIfRecipeSaved() {
+
+        Recipe currentRecipe = getRecipe();
+
+        Log.d(TAG, "Email: " + currentUser.getEmail());
+
+        firestore.collection("Users").document(currentUser.getEmail()).collection("SavedRecipes").document(currentRecipe.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            DocumentSnapshot result = task.getResult();
+
+                            Map<String, Object> savedRecipe = result.getData();
+
+                            if (savedRecipe == null) {
+                                btnSaveRecipe.setText("Save Recipe");
+                                btnSaveRecipe.setBackgroundColor(Color.GREEN);
+                            }else {
+                                btnSaveRecipe.setText("Remove Recipe");
+                                btnSaveRecipe.setBackgroundColor(Color.RED);
+                            }
+
+                        }
                     }
                 });
 
