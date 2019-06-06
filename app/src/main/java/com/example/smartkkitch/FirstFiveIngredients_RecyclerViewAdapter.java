@@ -17,9 +17,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
     private String currentContext;
 
     private FirebaseUser currentUser;
+    private FirebaseFirestore firestore;
     //ArrayLists that hold ingredients given in adapter constructor and favoriteIngredients
     private ArrayList<Ingredient> ingredients;
     private ArrayList<Ingredient> favoriteIngredients = new ArrayList<>();
@@ -60,6 +64,8 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
 
         //Inflates layout with the ingredient layout
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.first_five_ingredients, viewGroup, false);
+
+        firestore = FirebaseFirestore.getInstance();
 
         //Returns ViewHolder object with the view created
         return new ViewHolder(view);
@@ -101,7 +107,6 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
                     //Ingredient clicked
                     final Ingredient ingredient = ingredients.get(viewHolder.getAdapterPosition());
                     String userEmail = currentUser.getEmail();
-                    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
                     //Ingredient clicked HashMap object containing ingredient name and ID
                     final Map<String, Object> favoriteIngredient = new HashMap<>();
@@ -121,6 +126,8 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
                                 public void onSuccess(Void aVoid) {
 
                                     Toast.makeText(context, "" + ingredient.getName() + " added to favorite ingredients!", Toast.LENGTH_LONG).show();
+                                    incrementIngredientNumberSaves(ingredient);
+
                                 }
                             })
 
@@ -141,9 +148,6 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
 
                 }
                 else if (currentContext.equals(firstFiveIngredientsContext)){
-
-                    Log.d(TAG, "Ingredient ID: " + ingredient.getId());
-                    Log.d(TAG, "Tag: " + viewHolder.btnCheckbox.getTag());
 
                     //Toast.makeText(context, arrayIds.get(i), Toast.LENGTH_LONG).show();
 
@@ -175,6 +179,65 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
             }
         });
 
+
+    }
+
+    private void incrementIngredientNumberSaves(final Ingredient ingredient) {
+
+        firestore.collection("Ingredients").document(ingredient.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            DocumentSnapshot result = task.getResult();
+                            Map<String, Object> ingredientMap = result.getData();
+                            String numberSaves = "";
+
+                            try {
+                                numberSaves = ingredientMap.get("numberSaves").toString();
+
+                                int numberSavesInt = Integer.parseInt(numberSaves);
+
+                                numberSavesInt++;
+
+                                final Map<String, Object> numberSavesMap = new HashMap<>();
+                                numberSavesMap.put("name", ingredient.getName());
+                                numberSavesMap.put("imageUrl", ingredient.getImageUrl());
+                                numberSavesMap.put("numberSaves", numberSavesInt);
+
+                                firestore.collection("Ingredients").document(ingredient.getId())
+                                        .set(numberSavesMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Number of saves updated: " + numberSavesMap);
+                                            }
+                                        });
+
+                            } catch (NullPointerException exception) {
+
+                                final Map<String, Object> firstNumberSave = new HashMap<>();
+                                firstNumberSave.put("name", ingredient.getName());
+                                firstNumberSave.put("imageUrl", ingredient.getImageUrl());
+                                firstNumberSave.put("numberSaves", 1);
+
+                                firestore.collection("Ingredients").document(ingredient.getId())
+                                        .set(firstNumberSave)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Ingredients ID: " + ingredient.getId());
+                                                Log.d(TAG, "First number save added: " + firstNumberSave);
+                                            }
+                                        });
+
+
+                            }
+                        }
+                    }
+                });
 
     }
 
