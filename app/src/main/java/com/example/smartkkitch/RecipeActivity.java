@@ -174,7 +174,6 @@ public class RecipeActivity extends AppCompatActivity {
                             saveRecipe.put("name", currentRecipe.getName());
                             saveRecipe.put("imageUrl", currentRecipe.getImageUrl());
 
-                            //TODO change button when recipe is saved
                             //Saves recipe to user's SavedRecipes collection
                             firestore.collection("Users").document(currentUser.getEmail()).collection("SavedRecipes").document(currentRecipe.getId())
                                     .set(saveRecipe)

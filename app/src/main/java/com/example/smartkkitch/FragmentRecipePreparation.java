@@ -36,6 +36,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -101,7 +103,7 @@ public class FragmentRecipePreparation extends Fragment {
                                     mRecipeSteps.add(newRecipeStep);
                                 }
 
-                                initRecyclerView(mRecipeSteps);
+                                initRecyclerView();
                             }
 
 
@@ -197,7 +199,7 @@ public class FragmentRecipePreparation extends Fragment {
                     }
 
 
-                    initRecyclerView(mRecipeSteps);
+                    initRecyclerView();
 
                     //TODO put an empty state in the preparation fragment when there are no steps to show
                 } catch (JSONException e) {
@@ -225,7 +227,7 @@ public class FragmentRecipePreparation extends Fragment {
                                 }
                             });
 
-                    initRecyclerView(mRecipeSteps);
+                    initRecyclerView();
                 }
 
             }
@@ -250,12 +252,13 @@ public class FragmentRecipePreparation extends Fragment {
 
     }
 
-    private void initRecyclerView(ArrayList<RecipeStep> arrayRecipeSteps) {
+
+    private void initRecyclerView() {
 
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mPreparationRecyclerView.setLayoutManager(layoutManager);
-        FragmentRecipePreparationAdapter adapter = new FragmentRecipePreparationAdapter(getActivity(), arrayRecipeSteps, user);
+        FragmentRecipePreparationAdapter adapter = new FragmentRecipePreparationAdapter(getActivity(), mRecipeSteps, user);
         mPreparationRecyclerView.setAdapter(adapter);
 
     }

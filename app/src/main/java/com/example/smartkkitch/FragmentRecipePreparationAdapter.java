@@ -31,8 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-
-//TODO If there are more than 10 steps, it shows them in wrong order------> Fix
 public class FragmentRecipePreparationAdapter extends RecyclerView.Adapter<FragmentRecipePreparationAdapter.ViewHolder>{
 
     private static final String TAG = "PreparationAdapter";
@@ -68,12 +66,19 @@ public class FragmentRecipePreparationAdapter extends RecyclerView.Adapter<Fragm
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
 
-        Log.d(TAG, "I: " + i);
+        RecipeStep recipeStep = new RecipeStep("", "");
 
-        //Gets RecipeStep object
-        RecipeStep recipeStep = mRecipeSteps.get(i);
+        //Orders recipe steps
+        for (RecipeStep currentStep: mRecipeSteps) {
 
-        Log.d(TAG, "Adapter Recipe: " + recipeStep);
+            int stepNumber = Integer.parseInt(currentStep.getNumber());
+
+            if (stepNumber == i + 1) {
+                recipeStep = currentStep;
+                break;
+            }
+
+        }
 
         //Gets recipe step number and description from recipe step object
         String recipeNumber = recipeStep.getNumber();
