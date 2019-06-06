@@ -182,8 +182,14 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
 
     }
 
+    /*TODO
+    *   - Add save number logic everywhere an ingredient is saved to the firestore.
+    *   - Add reverse incrementation when a user deletes an ingredient from the favorite ingredients list
+    *   - Add both logic to the recipes addition and removal from the firestore.
+    *   */
     private void incrementIngredientNumberSaves(final Ingredient ingredient) {
 
+        //Gets clicked ingredient from firestore
         firestore.collection("Ingredients").document(ingredient.getId())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -191,22 +197,29 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
 
+                            //Gets ingredient object from database
                             DocumentSnapshot result = task.getResult();
                             Map<String, Object> ingredientMap = result.getData();
                             String numberSaves = "";
 
+                            //Tries to get number of saves from ingredient
                             try {
+                                //Gets number of ingredient's saves
                                 numberSaves = ingredientMap.get("numberSaves").toString();
 
+                                //Parses number of saves to a integer
                                 int numberSavesInt = Integer.parseInt(numberSaves);
 
+                                //Increments number of saves
                                 numberSavesInt++;
 
+                                //Creates a map object to save to the firestore
                                 final Map<String, Object> numberSavesMap = new HashMap<>();
                                 numberSavesMap.put("name", ingredient.getName());
                                 numberSavesMap.put("imageUrl", ingredient.getImageUrl());
                                 numberSavesMap.put("numberSaves", numberSavesInt);
 
+                                //Saves updated ingredient info to the firestore
                                 firestore.collection("Ingredients").document(ingredient.getId())
                                         .set(numberSavesMap)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -216,19 +229,21 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
                                             }
                                         });
 
+                            //If there is no "numberSaves" field in ingredient document, adds the field with value of 1
                             } catch (NullPointerException exception) {
 
+                                //Creates Map object with 1 save number to add to the database
                                 final Map<String, Object> firstNumberSave = new HashMap<>();
                                 firstNumberSave.put("name", ingredient.getName());
                                 firstNumberSave.put("imageUrl", ingredient.getImageUrl());
                                 firstNumberSave.put("numberSaves", 1);
 
+                                //Adds ingredient info to the firestore
                                 firestore.collection("Ingredients").document(ingredient.getId())
                                         .set(firstNumberSave)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "Ingredients ID: " + ingredient.getId());
                                                 Log.d(TAG, "First number save added: " + firstNumberSave);
                                             }
                                         });
