@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -189,27 +190,41 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
 
                 //Checks which image is currently associated to the button, and changes it to the other one (if "checked" changes to "unchecked" and vice versa
                 if (btnBitMap.sameAs(bitMapChecked)) {
-                    viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
 
-                    //TODO prevent user from having less than 5 favorite ingredients in the database
+                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients")
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
 
-                    //Deletes ingredient from user's favorite ingredients collection
-                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredientRecipe.getId())
-                            .delete()
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "Ingredient deleted from favorites: " + ingredientRecipe.getId());
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    e.printStackTrace();
+                                        QuerySnapshot result = task.getResult();
+
+                                        if (result.size() > 5) {
+                                            //Deletes ingredient from user's favorite ingredients collection
+                                            firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredientRecipe.getId())
+                                                    .delete()
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Toast.makeText(context, "" + ingredientRecipe.getName() + " removed from favorite ingredients", Toast.LENGTH_SHORT).show();
+                                                            viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
+                                                            Log.d(TAG, "Ingredient deleted from favorites: " + ingredientRecipe.getId());
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    });
+                                        }else {
+                                            Toast.makeText(context, "Can't have less than 5 favorite ingredients.", Toast.LENGTH_SHORT).show();
+                                        }
+
+                                    }
                                 }
                             });
-
-                    //TODO Check if ingredient exists in Ingredients collection and if it has an imageURL, if not, get image URL from API before adding to theuser's favorite Ingredietns
                 } else if (btnBitMap.sameAs(bitMapNotChecked)) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
 
@@ -222,6 +237,7 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
+                                    Toast.makeText(context, "" + ingredientRecipe.getName() + " added to favorite ingredients", Toast.LENGTH_SHORT).show();
                                     Log.d(TAG, "New ingredient added: " + newIngredient);
                                 }
                             })
