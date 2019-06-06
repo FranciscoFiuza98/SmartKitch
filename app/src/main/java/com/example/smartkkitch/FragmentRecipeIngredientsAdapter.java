@@ -149,6 +149,7 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                                                             Toast.makeText(context, "" + ingredientRecipe.getName() + " removed from favorite ingredients", Toast.LENGTH_SHORT).show();
                                                             viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
                                                             Log.d(TAG, "Ingredient deleted from favorites: " + ingredientRecipe.getId());
+                                                            decrementIngredientNumberSaves(ingredientRecipe);
                                                         }
                                                     })
                                                     .addOnFailureListener(new OnFailureListener() {
@@ -194,6 +195,64 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
 
     }
 
+    private void decrementIngredientNumberSaves(final IngredientRecipe ingredient) {
+
+        firestore.collection("Ingredients").document(ingredient.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            DocumentSnapshot result = task.getResult();
+                            Map<String, Object> ingredientMap = result.getData();
+
+                            try {
+                                String numberSaves = ingredientMap.get("numberSaves").toString();
+                                int numberSavesInt = Integer.parseInt(numberSaves);
+                                numberSavesInt--;
+
+                                final Map<String, Object> numberSavesMap = new HashMap<>();
+                                numberSavesMap.put("name", ingredient.getName());
+                                numberSavesMap.put("imageUrl", ingredient.getImageUrl());
+                                numberSavesMap.put("numberSaves", numberSavesInt);
+
+                                firestore.collection("Ingredients").document(ingredient.getId())
+                                        .set(numberSavesMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Number of saves Decrement: " + numberSavesMap);
+                                            }
+                                        });
+
+                            } catch (NullPointerException exception) {
+
+                                //Creates Map object with 1 save number to add to the database
+                                final Map<String, Object> firstNumberSave = new HashMap<>();
+                                firstNumberSave.put("name", ingredient.getName());
+                                firstNumberSave.put("imageUrl", ingredient.getImageUrl());
+                                firstNumberSave.put("numberSaves", 0);
+
+                                //Adds ingredient info to the firestore
+                                firestore.collection("Ingredients").document(ingredient.getId())
+                                        .set(firstNumberSave)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "First number save added: " + firstNumberSave);
+                                            }
+                                        });
+
+                            }
+
+
+                        }
+                    }
+                });
+
+    }
+
     private void incrementIngredientNumberSaves(final IngredientRecipe ingredient) {
 
         //Gets clicked ingredient from firestore
@@ -232,7 +291,7 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "Number of saves updated: " + numberSavesMap);
+                                                Log.d(TAG, "Number of saves Increment: " + numberSavesMap);
                                             }
                                         });
 
