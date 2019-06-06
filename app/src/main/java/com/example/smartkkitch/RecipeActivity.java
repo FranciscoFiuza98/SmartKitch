@@ -135,7 +135,7 @@ public class RecipeActivity extends AppCompatActivity {
 
     private void removeRecipe() {
 
-        Recipe currentRecipe = getRecipe();
+        final Recipe currentRecipe = getRecipe();
 
         firestore.collection("Users").document(currentUser.getEmail()).collection("SavedRecipes").document(currentRecipe.getId())
                 .delete()
@@ -147,6 +147,7 @@ public class RecipeActivity extends AppCompatActivity {
                             Toast.makeText(RecipeActivity.this, "Recipe Removed", Toast.LENGTH_SHORT).show();
                             btnSaveRecipe.setText("Save Recipe");
                             btnSaveRecipe.setBackgroundColor(Color.GREEN);
+                            recipeNumberSavesChange(currentRecipe, "decrement");
 
                         }
                     }
@@ -156,7 +157,6 @@ public class RecipeActivity extends AppCompatActivity {
 
     //Saves recipe to the user collection
     private void saveRecipe() {
-        final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
         final Recipe currentRecipe = getRecipe();
 
@@ -183,6 +183,7 @@ public class RecipeActivity extends AppCompatActivity {
                                             Toast.makeText(RecipeActivity.this, "Recipe Saved", Toast.LENGTH_SHORT).show();
                                             btnSaveRecipe.setText("Remove Recipe");
                                             btnSaveRecipe.setBackgroundColor(Color.RED);
+                                            recipeNumberSavesChange(currentRecipe, "increment");
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
@@ -241,6 +242,195 @@ public class RecipeActivity extends AppCompatActivity {
                 });
 
     }
+
+/*    private void incrementRecipeNumberSaves(final Recipe recipe) {
+
+        Log.d(TAG, "ID: " + recipe.getId());
+
+        firestore.collection("Recipes").document(recipe.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            DocumentSnapshot result = task.getResult();
+                            Map<String, Object> savedRecipe = result.getData();
+
+                            try{
+                                String numberSaves = savedRecipe.get("numberSaves").toString();
+                                int numberSavesInt = Integer.parseInt(numberSaves);
+                                numberSavesInt++;
+
+                                final Map<String, Object> numberSavesMap = new HashMap<>();
+                                numberSavesMap.put("name", recipe.getName());
+                                numberSavesMap.put("imageUrl", recipe.getImageUrl());
+                                numberSavesMap.put("numberSaves", numberSavesInt);
+
+                                firestore.collection("Recipes").document(recipe.getId())
+                                        .set(numberSavesMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Number Saves increment: " + numberSavesMap);
+                                            }
+                                        });
+
+                            }catch (NullPointerException exception) {
+
+                                final Map<String, Object> numberSavesMap = new HashMap<>();
+                                numberSavesMap.put("name", recipe.getName());
+                                numberSavesMap.put("imageUrl", recipe.getImageUrl());
+                                numberSavesMap.put("numberSaves", 1);
+
+                                firestore.collection("Recipes").document(recipe.getId())
+                                        .set(numberSavesMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Number Saves new: " + numberSavesMap);
+                                            }
+                                        });
+
+                            }
+
+                        }
+                    }
+                });
+
+    }*/
+
+    private void recipeNumberSavesChange(final Recipe recipe, final String type) {
+
+        Log.d(TAG, "ID: " + recipe.getId());
+
+        firestore.collection("Recipes").document(recipe.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            DocumentSnapshot result = task.getResult();
+                            Map<String, Object> savedRecipe = result.getData();
+
+                            try{
+                                String numberSaves = savedRecipe.get("numberSaves").toString();
+
+                                Log.d(TAG, "Current Number of saves: " + numberSaves);
+
+                                int numberSavesInt = Integer.parseInt(numberSaves);
+                                if (type.equals("increment")) {
+                                    numberSavesInt++;
+                                } else if (type.equals("decrement")) {
+                                    numberSavesInt--;
+                                }
+
+                                final Map<String, Object> numberSavesMap = new HashMap<>();
+                                numberSavesMap.put("name", recipe.getName());
+                                numberSavesMap.put("imageUrl", recipe.getImageUrl());
+                                numberSavesMap.put("numberSaves", numberSavesInt);
+
+                                firestore.collection("Recipes").document(recipe.getId())
+                                        .set(numberSavesMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Number Saves increment: " + numberSavesMap);
+                                            }
+                                        });
+
+                            }catch (NullPointerException exception) {
+
+                                final Map<String, Object> numberSavesMap = new HashMap<>();
+                                numberSavesMap.put("name", recipe.getName());
+                                numberSavesMap.put("imageUrl", recipe.getImageUrl());
+
+                                if (type.equals("increment")) {
+                                    numberSavesMap.put("numberSaves", 1);
+                                } else if (type.equals("decrement")) {
+                                    numberSavesMap.put("numberSaves", 0);
+                                }
+
+                                firestore.collection("Recipes").document(recipe.getId())
+                                        .set(numberSavesMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Number Saves new: " + numberSavesMap);
+                                            }
+                                        });
+
+                            }
+
+                        }
+                    }
+                });
+
+    }
+
+
+/*
+    private void decrementRecipeNumberSaves(final Recipe recipe) {
+
+        Log.d(TAG, "ID: " + recipe.getId());
+
+        firestore.collection("Recipes").document(recipe.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            DocumentSnapshot result = task.getResult();
+                            Map<String, Object> savedRecipe = result.getData();
+
+                            try{
+                                String numberSaves = savedRecipe.get("numberSaves").toString();
+                                int numberSavesInt = Integer.parseInt(numberSaves);
+                                numberSavesInt--;
+
+                                final Map<String, Object> numberSavesMap = new HashMap<>();
+                                numberSavesMap.put("name", recipe.getName());
+                                numberSavesMap.put("imageUrl", recipe.getImageUrl());
+                                numberSavesMap.put("numberSaves", numberSavesInt);
+
+                                firestore.collection("Recipes").document(recipe.getId())
+                                        .set(numberSavesMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Number Saves increment: " + numberSavesMap);
+                                            }
+                                        });
+
+                            }catch (NullPointerException exception) {
+
+                                final Map<String, Object> numberSavesMap = new HashMap<>();
+                                numberSavesMap.put("name", recipe.getName());
+                                numberSavesMap.put("imageUrl", recipe.getImageUrl());
+                                numberSavesMap.put("numberSaves", 1);
+
+                                firestore.collection("Recipes").document(recipe.getId())
+                                        .set(numberSavesMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Number Saves new: " + numberSavesMap);
+                                            }
+                                        });
+
+                            }
+
+                        }
+                    }
+                });
+
+    }
+*/
+
+
+
 
     private void checkIfRecipeSaved() {
 
