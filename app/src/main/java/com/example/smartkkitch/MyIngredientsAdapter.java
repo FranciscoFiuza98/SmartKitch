@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -85,7 +86,9 @@ public class MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdap
         viewHolder.ingredientName.setText(ingredientName);
         viewHolder.btnCross.setImageResource(R.drawable.cross);
 
-        //On click listener for the card
+        //FIXME Fix crash when spamming remove button
+
+        //On click listener for the button
         viewHolder.btnCross.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,6 +115,7 @@ public class MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdap
                                                     public void onComplete(@NonNull Task<Void> task) {
                                                         if (task.isSuccessful()) {
                                                             Toast.makeText(context, "" + ingredientName + " removed from favorite ingredients.", Toast.LENGTH_SHORT).show();
+                                                            decrementIngredientNumberSaves(ingredient);
                                                         }
                                                         else {
                                                             Toast.makeText(context, "Could not delete ingredient", Toast.LENGTH_SHORT).show();
@@ -128,6 +132,67 @@ public class MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdap
 
             }
         });
+
+    }
+
+    private void decrementIngredientNumberSaves(final Ingredient ingredient) {
+
+        firestore.collection("Ingredients").document(ingredient.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            DocumentSnapshot result = task.getResult();
+                            Map<String, Object> ingredientMap = result.getData();
+
+                            try {
+                                String numberSaves = ingredientMap.get("numberSaves").toString();
+                                int numberSavesInt = Integer.parseInt(numberSaves);
+
+                                Log.d(TAG, "Current number: " + numberSaves);
+
+                                numberSavesInt--;
+
+                                final Map<String, Object> numberSavesMap = new HashMap<>();
+                                numberSavesMap.put("name", ingredient.getName());
+                                numberSavesMap.put("imageUrl", ingredient.getImageUrl());
+                                numberSavesMap.put("numberSaves", numberSavesInt);
+
+                                firestore.collection("Ingredients").document(ingredient.getId())
+                                        .set(numberSavesMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Number of saves Decrement: " + numberSavesMap);
+                                            }
+                                        });
+
+                            } catch (NullPointerException exception) {
+
+                                //Creates Map object with 1 save number to add to the database
+                                final Map<String, Object> firstNumberSave = new HashMap<>();
+                                firstNumberSave.put("name", ingredient.getName());
+                                firstNumberSave.put("imageUrl", ingredient.getImageUrl());
+                                firstNumberSave.put("numberSaves", 0);
+
+                                //Adds ingredient info to the firestore
+                                firestore.collection("Ingredients").document(ingredient.getId())
+                                        .set(firstNumberSave)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "First number save added: " + firstNumberSave);
+                                            }
+                                        });
+
+                            }
+
+
+                        }
+                    }
+                });
 
     }
 
