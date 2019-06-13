@@ -29,7 +29,7 @@ public class FragmentMeat extends Fragment{
         btnForYou.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "Going to FragmentForYou", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), "Going to FragmentForYou", Toast.LENGTH_SHORT).show();
 
                 ((Home) Objects.requireNonNull(getActivity())).setViewPager(0);
             }
@@ -38,7 +38,7 @@ public class FragmentMeat extends Fragment{
         btnMeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "Going to FragmentMeat", Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(getActivity(), "Going to FragmentMeat", Toast.LENGTH_SHORT).show();
 
                 ((Home) Objects.requireNonNull(getActivity())).setViewPager(1);
             }

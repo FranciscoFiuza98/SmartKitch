@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdapter.ViewHolder> {
+public class    MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdapter.ViewHolder> {
 
     private static final String TAG = "MyIngredientsAdapter";
 

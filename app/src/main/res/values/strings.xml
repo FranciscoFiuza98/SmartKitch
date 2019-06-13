@@ -52,6 +52,8 @@
     <string name="ingredients_used">Ingredients Used:</string>
     <string name="ingredients_missed">Ingredients Missed:</string>
     <string name="my_ingredients">My Ingredients</string>
+    <string name="login">Login</string>
+    <string name="sign_in_to_continue">Sign in to continue</string>
 
 
 </resources>
