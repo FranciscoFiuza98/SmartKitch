@@ -1,60 +1,40 @@
 package com.example.smartkkitch;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapter<FirstFiveIngredients_RecyclerViewAdapter.ViewHolder> {
 
     //Tag for debugging
     private static final String TAG = "FirstFiveIngredients_Re";
 
-    private String firstFiveIngredientsContext = "com.example.smartkkitch.FirstFiveIngredients";
-    private String homeContext = "com.example.smartkkitch.Home";
-    private String applicationContext = "android.app.Application";
-    private String currentContext;
-
     private FirebaseUser currentUser;
     private FirebaseFirestore firestore;
     //ArrayLists that hold ingredients given in adapter constructor and favoriteIngredients
-    private ArrayList<Ingredient> ingredients;
-    private ArrayList<Ingredient> favoriteIngredients = new ArrayList<>();
-
-    private int firstBind = 0;
+    private ArrayList<IngredientAdapter> ingredients;
+    private ArrayList<IngredientAdapter> favoriteIngredients = new ArrayList<>();
 
     //Activity context
     private Context context;
 
     //RecyclerView adapater constructor
-    FirstFiveIngredients_RecyclerViewAdapter(Context context, ArrayList<Ingredient> ingredients, FirebaseUser currentUser) {
+    FirstFiveIngredients_RecyclerViewAdapter(Context context, ArrayList<IngredientAdapter> ingredients, FirebaseUser currentUser) {
         this.ingredients = ingredients;
         this.context = context;
-        this.currentContext = context.toString().split("@")[0];
         this.currentUser = currentUser;
     }
 
@@ -71,16 +51,11 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
         return new ViewHolder(view);
     }
 
-    /*
-    TODO Fix repetetive checking:
-        - Find a way to change the button image only for that ingredient (Compare ID).
-        - Try putting a TextView in the card and changing it on click to see if its the card's, button or image problem*/
-
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
 
         //Current ingredient of the iteration
-        final Ingredient ingredient = ingredients.get(i);
+        final IngredientAdapter ingredient = ingredients.get(i);
 
         //Adds ingredient image to each card
         Glide.with(context)
@@ -96,83 +71,27 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
 
         viewHolder.btnCheckbox.setTag(ingredient.getId());
 
+        if (ingredient.isImageChanged()) {
+            viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+        } else {
+            viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
+        }
+
         //OnClick listener for each card
         viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                //Checks which image is currently associated to the button, and changes it to the other one (if "checked" changes to "unchecked" and vice versa
+                if (ingredient.isImageChanged()) {
+                    viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
+                    ingredient.setImageChanged(false);
+                    favoriteIngredients.remove(ingredients.get(i));
 
-                if (currentContext.equals(homeContext) || currentContext.equals(applicationContext)) {
-
-                    //Ingredient clicked
-                    final Ingredient ingredient = ingredients.get(viewHolder.getAdapterPosition());
-                    String userEmail = currentUser.getEmail();
-
-                    //Ingredient clicked HashMap object containing ingredient name and ID
-                    final Map<String, Object> favoriteIngredient = new HashMap<>();
-                    favoriteIngredient.put("name", ingredient.getName());
-                    favoriteIngredient.put("imageUrl", ingredient.getImageUrl());
-
-                    ingredients.remove(viewHolder.getAdapterPosition());
-                    notifyItemRemoved(viewHolder.getAdapterPosition());
-                    notifyItemRangeChanged(viewHolder.getAdapterPosition(), ingredients.size());
-
-                    //Adds ingredient to database
-                    assert userEmail != null;
-                    firestore.collection("Users").document(userEmail).collection("FavoriteIngredients").document(ingredient.getId())
-                            .set(favoriteIngredient)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-
-                                    Toast.makeText(context, "" + ingredient.getName() + " added to favorite ingredients!", Toast.LENGTH_LONG).show();
-                                    incrementIngredientNumberSaves(ingredient);
-
-                                }
-                            })
-
-                            //TODO Find a way to force error to test the ingredient addition to the Recycler View
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                    ingredients.add(ingredient);
-                                    notifyItemInserted(viewHolder.getAdapterPosition());
-                                    notifyItemRangeChanged(viewHolder.getAdapterPosition(), ingredients.size());
-
-                                    Log.w(TAG, "onFailure: ", e);
-                                    Toast.makeText(context, "Something went wrong", Toast.LENGTH_LONG).show();
-                                }
-                            });
-
-
-                }
-                else if (currentContext.equals(firstFiveIngredientsContext)){
-
-                    //Toast.makeText(context, arrayIds.get(i), Toast.LENGTH_LONG).show();
-
-                    //Gets bitmap of the current image of the button
-                    final Bitmap btnBitMap = ((BitmapDrawable) viewHolder.btnCheckbox.getDrawable()).getBitmap();
-
-                    //Gets drawables for the "checked" and "notchecked" images
-                    Drawable checked = context.getResources().getDrawable(R.drawable.checked);
-                    Drawable notChecked = context.getResources().getDrawable(R.drawable.notchecked);
-
-                    //Gets bitmap for the "checked" and "notchecked" images
-                    final Bitmap bitMapChecked = ((BitmapDrawable) checked).getBitmap();
-                    final Bitmap bitMapNotChecked = ((BitmapDrawable) notChecked).getBitmap();
-
-                    //Checks which image is currently associated to the button, and changes it to the other one (if "checked" changes to "unchecked" and vice versa
-                    if (btnBitMap.sameAs(bitMapChecked) && viewHolder.btnCheckbox.getTag().equals(ingredient.getId())) {
-                        viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
-
-                        favoriteIngredients.remove(ingredients.get(i));
-
-                    } else if (btnBitMap.sameAs(bitMapNotChecked) && viewHolder.btnCheckbox.getTag().equals(ingredient.getId())) {
-                        viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
-
-                        favoriteIngredients.add(ingredients.get(i));
-                    }
+                } else if (!ingredient.isImageChanged()) {
+                    viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+                    ingredient.setImageChanged(true);
+                    favoriteIngredients.add(ingredients.get(i));
                 }
 
 
@@ -182,86 +101,12 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
 
     }
 
-    /*TODO
-    *   - Add save number logic everywhere an ingredient is saved to the firestore.
-    *   - Add reverse incrementation when a user deletes an ingredient from the favorite ingredients list
-    *   - Add both logic to the recipes addition and removal from the firestore.
-    *   */
-    private void incrementIngredientNumberSaves(final Ingredient ingredient) {
-
-        //Gets clicked ingredient from firestore
-        firestore.collection("Ingredients").document(ingredient.getId())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-
-                            //Gets ingredient object from database
-                            DocumentSnapshot result = task.getResult();
-                            Map<String, Object> ingredientMap = result.getData();
-                            String numberSaves = "";
-
-                            //Tries to get number of saves from ingredient
-                            try {
-                                //Gets number of ingredient's saves
-                                numberSaves = ingredientMap.get("numberSaves").toString();
-
-                                //Parses number of saves to a integer
-                                int numberSavesInt = Integer.parseInt(numberSaves);
-
-                                //Increments number of saves
-                                numberSavesInt++;
-
-                                //Creates a map object to save to the firestore
-                                final Map<String, Object> numberSavesMap = new HashMap<>();
-                                numberSavesMap.put("name", ingredient.getName());
-                                numberSavesMap.put("imageUrl", ingredient.getImageUrl());
-                                numberSavesMap.put("numberSaves", numberSavesInt);
-
-                                //Saves updated ingredient info to the firestore
-                                firestore.collection("Ingredients").document(ingredient.getId())
-                                        .set(numberSavesMap)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "Number of saves updated: " + numberSavesMap);
-                                            }
-                                        });
-
-                            //If there is no "numberSaves" field in ingredient document, adds the field with value of 1
-                            } catch (NullPointerException exception) {
-
-                                //Creates Map object with 1 save number to add to the database
-                                final Map<String, Object> firstNumberSave = new HashMap<>();
-                                firstNumberSave.put("name", ingredient.getName());
-                                firstNumberSave.put("imageUrl", ingredient.getImageUrl());
-                                firstNumberSave.put("numberSaves", 1);
-
-                                //Adds ingredient info to the firestore
-                                firestore.collection("Ingredients").document(ingredient.getId())
-                                        .set(firstNumberSave)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "First number save added: " + firstNumberSave);
-                                            }
-                                        });
-
-
-                            }
-                        }
-                    }
-                });
-
-    }
-
     @Override
     public int getItemCount() {
         return ingredients.size();
     }
 
-    ArrayList<Ingredient> getFavoriteIngredients() {
+    ArrayList<IngredientAdapter> getFavoriteIngredients() {
         return favoriteIngredients;
     }
 

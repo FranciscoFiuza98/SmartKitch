@@ -51,7 +51,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private FirebaseUser currentUser;
 
-    ArrayList<Ingredient> mIngredients = new ArrayList<>();
+    ArrayList<IngredientAdapter> mIngredients = new ArrayList<>();
 
     //RecyclerView adapter class
     FirstFiveIngredients_RecyclerViewAdapter adapter;
@@ -86,7 +86,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
                                 String ingredientName = document.get("name").toString();
                                 String ingredientImageUrl = document.get("imageUrl").toString();
 
-                                Ingredient ingredient = new Ingredient(ingredientId, ingredientName, ingredientImageUrl);
+                                IngredientAdapter ingredient = new IngredientAdapter(ingredientId, ingredientName, ingredientImageUrl,false);
 
                                 mIngredients.add(ingredient);
 
@@ -128,8 +128,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
     //Function called on Start button click
     public void start(View view) {
 
-        //TODO Add add a number of likes to each ingredient favorited to the ingredients in the IngredientInformation collection in the database to show more relevant ingredients in the Home Activity
-        ArrayList<Ingredient> favoriteIngredients = adapter.getFavoriteIngredients();
+        ArrayList<IngredientAdapter> favoriteIngredients = adapter.getFavoriteIngredients();
 
         //Checks if user has chosen 5 ingredients, if not, makes a toast warning him
         if (favoriteIngredients.size() < 5) {
@@ -156,7 +155,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
                     });
 
             //Adds user's favorite ingredients to his FavoriteIngredients collection in the database
-            for (final Ingredient ingredient : favoriteIngredients) {
+            for (final IngredientAdapter ingredient : favoriteIngredients) {
                 final Map<String, Object> favoriteIngredient = new HashMap<>();
                 favoriteIngredient.put("name", ingredient.getName());
                 favoriteIngredient.put("imageUrl", ingredient.getImageUrl());
@@ -189,7 +188,7 @@ public class FirstFiveIngredients extends AppCompatActivity {
 
     }
 
-    private void incrementIngredientNumberSaves(final Ingredient ingredient) {
+    private void incrementIngredientNumberSaves(final IngredientAdapter ingredient) {
 
         //Gets clicked ingredient from firestore
         firestore.collection("Ingredients").document(ingredient.getId())
