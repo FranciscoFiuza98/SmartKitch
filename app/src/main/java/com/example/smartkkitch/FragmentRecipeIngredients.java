@@ -47,7 +47,7 @@ public class FragmentRecipeIngredients extends Fragment {
     private String apiKey = "890724bd25msh8626e74253b368cp16308cjsnf290bae6aa08";
     private RequestQueue mQueue;
 
-    private ArrayList<IngredientRecipe> mIngredientsList = new ArrayList<>();
+    private ArrayList<IngredientRecipeAdapter> mIngredientsList = new ArrayList<>();
 
     private RecyclerView mRecyclerView;
 
@@ -101,7 +101,7 @@ public class FragmentRecipeIngredients extends Fragment {
                                     String ingredientImageUrl = ingredient.get("imageUrl").toString();
                                     String ingredientUnit = ingredient.get("unit").toString();
 
-                                    IngredientRecipe ingredientRecipe = new IngredientRecipe(ingredientId, ingredientName, ingredientImageUrl, ingredientAmount, ingredientUnit);
+                                    IngredientRecipeAdapter ingredientRecipe = new IngredientRecipeAdapter(ingredientId, ingredientName, ingredientImageUrl, ingredientAmount, ingredientUnit,false);
 
                                     mIngredientsList.add(ingredientRecipe);
 
@@ -178,14 +178,14 @@ public class FragmentRecipeIngredients extends Fragment {
                         Double ingredientAmount = metric.getDouble("amount");
                         String amountUnit = metric.getString("unitShort");
 
-                        IngredientRecipe ingredientRecipe = new IngredientRecipe(ingredientId, ingredientName, ingredientImageUrl, ingredientAmount.toString(), amountUnit);
+                        IngredientRecipeAdapter ingredientRecipe = new IngredientRecipeAdapter(ingredientId, ingredientName, ingredientImageUrl, ingredientAmount.toString(), amountUnit, false);
 
                         mIngredientsList.add(ingredientRecipe);
 
                     }
 
                     // Iterates over Ingredients List array and adds the ingredients to Ingredients Collection and Recipe's Ingredients Collection
-                    for (final IngredientRecipe ingredientRecipe: mIngredientsList) {
+                    for (final IngredientRecipeAdapter ingredientRecipe: mIngredientsList) {
 
                         final Map<String, Object> ingredientMap = new HashMap<>();
                         ingredientMap.put("name", ingredientRecipe.getName());

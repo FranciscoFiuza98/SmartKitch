@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,6 +40,8 @@ public class    MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsA
 
     private static final String TAG = "MyIngredientsAdapter";
 
+    private ArrayList<Ingredient> mFavoriteIngredients;
+
     //Generated recipes list given in constructor
     private ArrayList<Ingredient> mIngredients;
     private FirebaseFirestore firestore;
@@ -51,6 +54,7 @@ public class    MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsA
     //Constructor
     public MyIngredientsAdapter(Context context, ArrayList<Ingredient> mIngredients) {
         this.mIngredients= mIngredients;
+        this.mFavoriteIngredients = mIngredients;
         this.context = context;
     }
 
@@ -69,14 +73,13 @@ public class    MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsA
         return new ViewHolder(view);
     }
 
-
     //Creation of every card
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int position) {
 
 
         //Gets Generated Recipe object
-        final Ingredient ingredient = mIngredients.get(i);
+        final Ingredient ingredient = mIngredients.get(position);
 
         //Recipe info
         final String ingredientId = ingredient.getId();
@@ -93,43 +96,31 @@ public class    MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsA
             @Override
             public void onClick(View v) {
 
-                firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients")
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    QuerySnapshot result = task.getResult();
+                if (mIngredients.size() > 5) {
 
-                                    if (result.size() > 5) {
+                    mIngredients.remove(position);
+                    notifyItemRemoved(position);
+                    notifyItemRangeChanged(position, mIngredients.size());
 
-                                        mIngredients.remove(viewHolder.getAdapterPosition());
-                                        notifyItemRemoved(viewHolder.getAdapterPosition());
-                                        notifyItemRangeChanged(viewHolder.getAdapterPosition(), mIngredients.size());
-
-
-                                        firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredientId)
-                                                .delete()
-                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            Toast.makeText(context, "" + ingredientName + " removed from favorite ingredients.", Toast.LENGTH_SHORT).show();
-                                                            decrementIngredientNumberSaves(ingredient);
-                                                        }
-                                                        else {
-                                                            Toast.makeText(context, "Could not delete ingredient", Toast.LENGTH_SHORT).show();
-                                                        }
-
-                                                    }
-                                                });
-                                    }else {
-                                        Toast.makeText(context, "You can't have less than 5 ingredients", Toast.LENGTH_SHORT).show();
+                    firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredientId)
+                            .delete()
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(context, "" + ingredientName + " removed from favorite ingredients.", Toast.LENGTH_SHORT).show();
+                                        decrementIngredientNumberSaves(ingredient);
                                     }
-                                }
-                            }
-                        });
+                                    else {
+                                        Toast.makeText(context, "Could not delete ingredient", Toast.LENGTH_SHORT).show();
+                                    }
 
+                                }
+                            });
+
+                } else {
+                    Toast.makeText(context, "Cannot have less than 5 ingredients", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

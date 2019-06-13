@@ -39,7 +39,8 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
     private static final String TAG = "FragmentRecipeIngredien";
 
     //Ingredients list given in constructor
-    private ArrayList<IngredientRecipe> mIngredients;
+    private ArrayList<IngredientRecipeAdapter> mIngredients;
+    private ArrayList<Ingredient> mFavoriteIngredients = new ArrayList<>();
 
     //Context given in constructor
     private Context context;
@@ -48,7 +49,7 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
     private FirebaseFirestore firestore;
 
     //Constructor
-    public FragmentRecipeIngredientsAdapter(Context context, ArrayList<IngredientRecipe> ingredients, FirebaseUser currentUser) {
+    public FragmentRecipeIngredientsAdapter(Context context, ArrayList<IngredientRecipeAdapter> ingredients, FirebaseUser currentUser) {
         this.mIngredients= ingredients;
         this.context = context;
         this.currentUser = currentUser;
@@ -63,30 +64,6 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
 
         firestore = FirebaseFirestore.getInstance();
 
-        //Returns ViewHolder object with the view created
-        return new ViewHolder(view);
-    }
-
-
-    //Creation of every card
-    @Override
-    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
-
-        //Gets IngredientRecipe object
-        final IngredientRecipe ingredientRecipe = mIngredients.get(i);
-
-        final String ingredientId= ingredientRecipe.getId();
-        String ingredientName = ingredientRecipe.getName();
-        String ingredientAmount = ingredientRecipe.getAmount();
-        String ingredientUnit= ingredientRecipe.getUnit();
-
-        //Sets ingredient ide, name, amount and unit
-
-        viewHolder.txtRecipeIngredientId.setText(ingredientId);
-        viewHolder.txtIngredientName.setText(ingredientName);
-        viewHolder.txtIngredientAmount.setText(ingredientAmount);
-        viewHolder.txtIngredientUnit.setText(ingredientUnit);
-
         //Gets user's favorite ingredients
         firestore.collection("Users").document(Objects.requireNonNull(currentUser.getEmail())).collection("FavoriteIngredients")
                 .get()
@@ -97,15 +74,16 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
 
                                 //Favorite ingredient data from database
-                                Map<String, Object> favoriteIngredient = document.getData();
+                                Map<String, Object> data = document.getData();
 
                                 //Gets ingredient ID
-                                String favoriteIngredientId = document.getId();
+                                String id= document.getId();
+                                String name = data.get("name").toString();
+                                String imageUrl = data.get("imageUrl").toString();
 
-                                //If the ingredient ID is the same as the current Ingredient ID, marks it as checked
-                                if (favoriteIngredientId.equals(ingredientId)) {
-                                    viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
-                                }
+                                Ingredient favoriteIngredient = new Ingredient(id, name, imageUrl);
+
+                                mFavoriteIngredients.add(favoriteIngredient);
                             }
                         } else {
                             Log.w(TAG, "Error getting documents.", task.getException());
@@ -113,22 +91,51 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                     }
                 });
 
+        //Returns ViewHolder object with the view created.
+        return new ViewHolder(view);
+    }
+
+
+    //Creation of every card
+    @Override
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
+
+        //Gets IngredientRecipe object
+        final IngredientRecipeAdapter ingredientRecipe = mIngredients.get(i);
+
+        final String ingredientId= ingredientRecipe.getId();
+        String ingredientName = ingredientRecipe.getName();
+        String ingredientAmount = ingredientRecipe.getAmount();
+        String ingredientUnit= ingredientRecipe.getUnit();
+
+        for (Ingredient ingredient: mFavoriteIngredients) {
+
+            if (ingredient.getId().equals(ingredientId)) {
+                ingredientRecipe.setImageChanged(true);
+                break;
+            }
+        }
+
+        //Sets ingredient ide, name, amount and unit
+
+        viewHolder.txtRecipeIngredientId.setText(ingredientId);
+        viewHolder.txtIngredientName.setText(ingredientName);
+        viewHolder.txtIngredientAmount.setText(ingredientAmount);
+        viewHolder.txtIngredientUnit.setText(ingredientUnit);
+
+        if (ingredientRecipe.isImageChanged()) {
+            viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+        } else {
+            viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
+        }
+
+
         viewHolder.btnCheckbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Gets bitmap of the current image of the button
-                final Bitmap btnBitMap = ((BitmapDrawable) viewHolder.btnCheckbox.getDrawable()).getBitmap();
-
-                //Gets drawables for the "checked" and "notchecked" images
-                Drawable checked = context.getResources().getDrawable(R.drawable.checked);
-                Drawable notChecked = context.getResources().getDrawable(R.drawable.notchecked);
-
-                //Gets bitmap for the "checked" and "notchecked" images
-                final Bitmap bitMapChecked = ((BitmapDrawable) checked).getBitmap();
-                final Bitmap bitMapNotChecked = ((BitmapDrawable) notChecked).getBitmap();
 
                 //Checks which image is currently associated to the button, and changes it to the other one (if "checked" changes to "unchecked" and vice versa
-                if (btnBitMap.sameAs(bitMapChecked)) {
+                if (ingredientRecipe.isImageChanged()) {
 
                     firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients")
                             .get()
@@ -165,7 +172,7 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                                     }
                                 }
                             });
-                } else if (btnBitMap.sameAs(bitMapNotChecked)) {
+                } else if (!ingredientRecipe.isImageChanged()) {
                     viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
 
                     final Map<String, Object> newIngredient = new HashMap<>();
@@ -195,7 +202,7 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
 
     }
 
-    private void decrementIngredientNumberSaves(final IngredientRecipe ingredient) {
+    private void decrementIngredientNumberSaves(final IngredientRecipeAdapter ingredient) {
 
         firestore.collection("Ingredients").document(ingredient.getId())
                 .get()
@@ -253,7 +260,7 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
 
     }
 
-    private void incrementIngredientNumberSaves(final IngredientRecipe ingredient) {
+    private void incrementIngredientNumberSaves(final IngredientRecipeAdapter ingredient) {
 
         //Gets clicked ingredient from firestore
         firestore.collection("Ingredients").document(ingredient.getId())
