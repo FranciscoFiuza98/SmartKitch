@@ -31,7 +31,7 @@ public class GenerateActivity extends AppCompatActivity {
 
     private static final String TAG = "GenerateActivity";
 
-    private ArrayList<Ingredient> mFavoriteIngredients = new ArrayList<>();
+    private ArrayList<IngredientAdapter> mFavoriteIngredients = new ArrayList<>();
 
     FirebaseFirestore firestore;
     FirebaseAuth mAuth;
@@ -101,7 +101,7 @@ public class GenerateActivity extends AppCompatActivity {
                                 String ingredientName = data.get("name").toString();
                                 String ingredientImageUrl = data.get("imageUrl").toString();
 
-                                Ingredient favoriteIngredient = new Ingredient(ingredientId, ingredientName, ingredientImageUrl);
+                                IngredientAdapter favoriteIngredient = new IngredientAdapter(ingredientId, ingredientName, ingredientImageUrl,false);
 
                                 mFavoriteIngredients.add(favoriteIngredient);
                             }

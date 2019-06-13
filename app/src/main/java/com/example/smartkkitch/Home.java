@@ -36,10 +36,10 @@ public class Home extends AppCompatActivity {
     //Fragment controllers
     private ViewPager mViewPager;
 
-    private ArrayList<Ingredient> mIngredients = new ArrayList<>();
-    private ArrayList<Ingredient> mFavoriteIngredients = new ArrayList<>();
+    private ArrayList<IngredientAdapter> mIngredients = new ArrayList<>();
+    private ArrayList<IngredientAdapter> mFavoriteIngredients = new ArrayList<>();
 
-    private FirstFiveIngredients_RecyclerViewAdapter adapter;
+    private HomeIngredientsAdapter adapter;
 
     //TODO Find a way to update ingredients and recipes recycler view on activity resume
     //TODO Add "View All ingredients"
@@ -96,7 +96,7 @@ public class Home extends AppCompatActivity {
                                 String ingredientName = document.get("name").toString();
                                 String ingredientImageUrl = document.get("imageUrl").toString();
 
-                                Ingredient ingredient = new Ingredient(ingredientId, ingredientName, ingredientImageUrl);
+                                IngredientAdapter ingredient = new IngredientAdapter(ingredientId, ingredientName, ingredientImageUrl,false);
 
 
                                 mIngredients.add(ingredient);
@@ -131,9 +131,10 @@ public class Home extends AppCompatActivity {
 
                                 String ingredientId = document.getId();
                                 String ingredientName = document.get("name").toString();
+                                Log.d(TAG, "Favorite Ingredient ID: " + ingredientId);
                                 String ingredientImageUrl = document.get("imageUrl").toString();
 
-                                Ingredient favoriteIngredient = new Ingredient(ingredientId, ingredientName, ingredientImageUrl);
+                                IngredientAdapter favoriteIngredient = new IngredientAdapter(ingredientId, ingredientName, ingredientImageUrl, false);
 
                                 mFavoriteIngredients.add(favoriteIngredient);
                             }
@@ -179,7 +180,7 @@ public class Home extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         //Creates a new adapter object
-        adapter = new FirstFiveIngredients_RecyclerViewAdapter(this, mIngredients, currentUser);
+        adapter = new HomeIngredientsAdapter(this, mIngredients, currentUser);
 
         //Sets adapter to RecyclerView
         recyclerView.setAdapter(adapter);

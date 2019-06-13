@@ -101,6 +101,8 @@ public class GeneratedRecipesActivity extends AppCompatActivity {
         //Adds urlIngredients to the base url
         url += newUrlIngredients;
 
+        Log.d(TAG, "Url: " + url);
+
         //Sends api request to the URL
         getGeneratedRecipes(url);
 
