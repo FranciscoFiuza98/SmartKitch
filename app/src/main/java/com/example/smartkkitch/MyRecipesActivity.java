@@ -72,9 +72,9 @@ public class MyRecipesActivity extends AppCompatActivity {
                     Intent homeIntent = new Intent(getApplicationContext(), Home.class);
                     startActivity(homeIntent);
                     return true;
-                case R.id.navigation_dashboard:
+                case R.id.navigation_recipes:
                     return true;
-                case R.id.navigation_notifications:
+                case R.id.navigation_generate:
                     Intent generateIntent = new Intent(getApplicationContext(), GenerateActivity.class);
                     startActivity(generateIntent);
                     return true;

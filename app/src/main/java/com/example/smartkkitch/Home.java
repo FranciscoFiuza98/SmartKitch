@@ -197,11 +197,11 @@ public class Home extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     return true;
-                case R.id.navigation_dashboard:
+                case R.id.navigation_recipes:
                     Intent myRecipesIntent = new Intent(getApplicationContext(), MyRecipesActivity.class);
                     startActivity(myRecipesIntent);
                     return true;
-                case R.id.navigation_notifications:
+                case R.id.navigation_generate:
                     Intent generateIntent = new Intent(getApplicationContext(), GenerateActivity.class);
                     startActivity(generateIntent);
                     return true;
