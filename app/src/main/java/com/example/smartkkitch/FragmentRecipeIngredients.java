@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class FragmentRecipeIngredients extends Fragment {
-    private static final String TAG = "FragmentRecipeIngredien";
+    private static final String TAG = "FragmentIngredients";
 
     private String imageUrl = "https://spoonacular.com/cdn/ingredients_100x100/";
 
@@ -48,12 +48,13 @@ public class FragmentRecipeIngredients extends Fragment {
     private RequestQueue mQueue;
 
     private ArrayList<IngredientRecipeAdapter> mIngredientsList = new ArrayList<>();
+    private ArrayList<Ingredient> mFavoriteIngredients = new ArrayList<>();
 
     private RecyclerView mRecyclerView;
 
     private FirebaseFirestore firestore;
     private FirebaseAuth mAuth;
-    private FirebaseUser user;
+    private FirebaseUser currentUser;
 
     @Nullable
     @Override
@@ -64,7 +65,7 @@ public class FragmentRecipeIngredients extends Fragment {
 
         //Firebase instances
         mAuth = FirebaseAuth.getInstance();
-        user = mAuth.getCurrentUser();
+        currentUser = mAuth.getCurrentUser();
         firestore = FirebaseFirestore.getInstance();
 
         mQueue = Volley.newRequestQueue((Objects.requireNonNull(getActivity())));
@@ -107,7 +108,7 @@ public class FragmentRecipeIngredients extends Fragment {
 
                                 }
 
-                                initRecyclerView();
+                                getUserFavoriteIngredients();
                             }
 
                         }else {
@@ -262,14 +263,71 @@ public class FragmentRecipeIngredients extends Fragment {
 
     }
 
+    private void getUserFavoriteIngredients() {
+
+        //Gets user's favorite ingredients
+        firestore.collection("Users").document(Objects.requireNonNull(currentUser.getEmail())).collection("FavoriteIngredients")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+
+                                //Favorite ingredient data from database
+                                Map<String, Object> data = document.getData();
+
+                                //Gets ingredient ID
+                                String id= document.getId();
+                                String name = data.get("name").toString();
+                                String imageUrl = data.get("imageUrl").toString();
+
+                                Ingredient favoriteIngredient = new Ingredient(id, name, imageUrl);
+
+                                Log.d(TAG, "Adding ingredient to favorites ");
+
+                                mFavoriteIngredients.add(favoriteIngredient);
+                            }
+
+                            for (Ingredient favoriteIngredient: mFavoriteIngredients) {
+
+                                for (IngredientRecipeAdapter ingredient: mIngredientsList) {
+
+                                    if (favoriteIngredient.getId().equals(ingredient.getId())) {
+
+                                        Log.d(TAG, "Changing to true: " + ingredient.getName());
+
+                                        ingredient.setImageChanged(true);
+                                    }
+                                }
+                            }
+
+                            initRecyclerView();
+
+                        } else {
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+
+    }
+
     private void initRecyclerView() {
 
         //TODO fix repetetive adding ingredients
 
+        Log.d(TAG, "Favorite Ingredients Size: " + mFavoriteIngredients.size());
+
+        for (IngredientRecipeAdapter ingredient: mIngredientsList){
+
+            Log.d(TAG, "Ingredient image changed: " + ingredient.isImageChanged());
+
+        }
+
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(layoutManager);
-        FragmentRecipeIngredientsAdapter adapter = new FragmentRecipeIngredientsAdapter(getActivity(), mIngredientsList, user);
+        FragmentRecipeIngredientsAdapter adapter = new FragmentRecipeIngredientsAdapter(getActivity(), mIngredientsList, mFavoriteIngredients);
         mRecyclerView.setAdapter(adapter);
 
     }

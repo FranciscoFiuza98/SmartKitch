@@ -22,6 +22,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -46,13 +47,14 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
     private Context context;
 
     private FirebaseUser currentUser;
+    private FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
 
     //Constructor
-    public FragmentRecipeIngredientsAdapter(Context context, ArrayList<IngredientRecipeAdapter> ingredients, FirebaseUser currentUser) {
+    public FragmentRecipeIngredientsAdapter(Context context, ArrayList<IngredientRecipeAdapter> ingredients, ArrayList<Ingredient> mFavoriteIngredients) {
         this.mIngredients= ingredients;
         this.context = context;
-        this.currentUser = currentUser;
+        this.mFavoriteIngredients = mFavoriteIngredients;
     }
 
     //Creates View object with the ingredient information
@@ -63,37 +65,13 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.recipe_ingredients, viewGroup, false);
 
         firestore = FirebaseFirestore.getInstance();
-
-        //Gets user's favorite ingredients
-        firestore.collection("Users").document(Objects.requireNonNull(currentUser.getEmail())).collection("FavoriteIngredients")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-
-                                //Favorite ingredient data from database
-                                Map<String, Object> data = document.getData();
-
-                                //Gets ingredient ID
-                                String id= document.getId();
-                                String name = data.get("name").toString();
-                                String imageUrl = data.get("imageUrl").toString();
-
-                                Ingredient favoriteIngredient = new Ingredient(id, name, imageUrl);
-
-                                mFavoriteIngredients.add(favoriteIngredient);
-                            }
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
-                        }
-                    }
-                });
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
 
         //Returns ViewHolder object with the view created.
         return new ViewHolder(view);
     }
+
 
 
     //Creation of every card
@@ -105,16 +83,8 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
 
         final String ingredientId= ingredientRecipe.getId();
         String ingredientName = ingredientRecipe.getName();
-        String ingredientAmount = ingredientRecipe.getAmount();
+        final String ingredientAmount = ingredientRecipe.getAmount();
         String ingredientUnit= ingredientRecipe.getUnit();
-
-        for (Ingredient ingredient: mFavoriteIngredients) {
-
-            if (ingredient.getId().equals(ingredientId)) {
-                ingredientRecipe.setImageChanged(true);
-                break;
-            }
-        }
 
         //Sets ingredient ide, name, amount and unit
 
@@ -137,6 +107,8 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                 //Checks which image is currently associated to the button, and changes it to the other one (if "checked" changes to "unchecked" and vice versa
                 if (ingredientRecipe.isImageChanged()) {
 
+
+
                     firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients")
                             .get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -154,8 +126,10 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
                                                             Toast.makeText(context, "" + ingredientRecipe.getName() + " removed from favorite ingredients", Toast.LENGTH_SHORT).show();
+
                                                             viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
-                                                            Log.d(TAG, "Ingredient deleted from favorites: " + ingredientRecipe.getId());
+                                                            ingredientRecipe.setImageChanged(false);
+
                                                             decrementIngredientNumberSaves(ingredientRecipe);
                                                         }
                                                     })
@@ -173,7 +147,6 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                                 }
                             });
                 } else if (!ingredientRecipe.isImageChanged()) {
-                    viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
 
                     final Map<String, Object> newIngredient = new HashMap<>();
                     newIngredient.put("imageUrl", ingredientRecipe.getImageUrl());
@@ -185,7 +158,10 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     Toast.makeText(context, "" + ingredientRecipe.getName() + " added to favorite ingredients", Toast.LENGTH_SHORT).show();
-                                    Log.d(TAG, "New ingredient added: " + newIngredient);
+
+                                    viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+                                    ingredientRecipe.setImageChanged(true);
+
                                     incrementIngredientNumberSaves(ingredientRecipe);
 
                                 }

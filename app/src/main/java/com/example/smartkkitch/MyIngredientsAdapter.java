@@ -36,11 +36,9 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class    MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdapter.ViewHolder> {
+public class MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdapter.ViewHolder> {
 
     private static final String TAG = "MyIngredientsAdapter";
-
-    private ArrayList<Ingredient> mFavoriteIngredients;
 
     //Generated recipes list given in constructor
     private ArrayList<Ingredient> mIngredients;
@@ -54,7 +52,6 @@ public class    MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsA
     //Constructor
     public MyIngredientsAdapter(Context context, ArrayList<Ingredient> mIngredients) {
         this.mIngredients= mIngredients;
-        this.mFavoriteIngredients = mIngredients;
         this.context = context;
     }
 
