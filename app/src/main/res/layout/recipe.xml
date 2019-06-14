@@ -9,9 +9,9 @@
         android:id="@+id/recipeCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="20dp"
         app:cardBackgroundColor="#FFFFFF">
 
         <RelativeLayout
@@ -21,11 +21,9 @@
             <ImageView
                 android:id="@+id/imgRecipeImage"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="20dp"
+                android:layout_height="250dp"
                 android:contentDescription="@string/recipe_image"
+                android:scaleType="fitXY"
                 tools:srcCompat="@tools:sample/avatars" />
 
             <TextView

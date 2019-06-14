@@ -170,6 +170,10 @@ public class Home extends AppCompatActivity {
     //TODO Show relevant ingredients (Most liked). Think of logic when there are no most liked ingredients to show.
     private void initRecyclerView() {
 
+        while (mIngredients.size() > 30) {
+            mIngredients.remove(mIngredients.size() - 1);
+        }
+
         //Creates a layout manager
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
 

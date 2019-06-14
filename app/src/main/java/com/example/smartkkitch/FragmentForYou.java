@@ -111,6 +111,12 @@ public class FragmentForYou extends Fragment {
 
         initMenusRecylerView();
 
+        while (mRecipes.size() > 30) {
+
+            mRecipes.remove(mRecipes.size() - 1);
+
+        }
+
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recipeRecyclerView.setLayoutManager(layoutManager);
