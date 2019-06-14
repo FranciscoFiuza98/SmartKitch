@@ -37,13 +37,14 @@
             android:layout_width="40dp"
             android:layout_height="25dp"
             android:layout_alignEnd="@+id/cardView"
-            android:layout_gravity="bottom|right|center_horizontal"
+            android:layout_gravity="right|center_horizontal"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="8dp"
             android:adjustViewBounds="true"
             android:background="#00FFFFFF"
             android:contentDescription="@string/checkboxbutton"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/notchecked" />
+            app:srcCompat="@drawable/add" />
 
         <TextView
             android:id="@+id/txtId"

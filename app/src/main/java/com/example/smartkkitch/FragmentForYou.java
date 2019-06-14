@@ -37,6 +37,7 @@ public class FragmentForYou extends Fragment {
     private ArrayList<Recipe> mRemoveRecipes = new ArrayList<>();
 
     private RecyclerView recipeRecyclerView;
+    private RecyclerView recyclerMenus;
 
     @Nullable
     @Override
@@ -45,10 +46,8 @@ public class FragmentForYou extends Fragment {
 
         firestore = FirebaseFirestore.getInstance();
 
-        //Gets instances for each object inside fragment
-        Button btnForYou = view.findViewById(R.id.btnForYou);
-        Button btnMeat = view.findViewById(R.id.btnMeat);
         recipeRecyclerView = view.findViewById(R.id.recipeRecyclerView);
+        recyclerMenus = view.findViewById(R.id.recyclerMenus);
 
 
         //TODO Recommend recipes based on other user's saved recipes
@@ -73,27 +72,6 @@ public class FragmentForYou extends Fragment {
                         }
                     }
                 });
-
-
-        //On click listener for "For You" button
-        btnForYou.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Toast.makeText(getActivity(), "Going to FragmentForYou", Toast.LENGTH_SHORT).show();
-
-                ((Home) Objects.requireNonNull(getActivity())).setViewPager(0);
-            }
-        });
-
-        //On click listener for "Meat" button
-        btnMeat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Toast.makeText(getActivity(), "Going to FragmentMeat", Toast.LENGTH_SHORT).show();
-
-                ((Home) Objects.requireNonNull(getActivity())).setViewPager(1);
-            }
-        });
 
         return view;
     }
@@ -131,19 +109,36 @@ public class FragmentForYou extends Fragment {
 
     private void initRecyclerView() {
 
-        Log.d(TAG, "Start: " + mRecipes.size());
-
-        for (Recipe removeRecipe : mRemoveRecipes) {
-            mRecipes.remove(removeRecipe);
-        }
-
-        Log.d(TAG, "End: " + mRecipes.size());
+        initMenusRecylerView();
 
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recipeRecyclerView.setLayoutManager(layoutManager);
         HomeRecipeRecyclerViewAdapter adapter = new HomeRecipeRecyclerViewAdapter(getActivity(), mRecipes);
         recipeRecyclerView.setAdapter(adapter);
+
+
+
+    }
+
+    private void initMenusRecylerView() {
+
+        ArrayList<String> menuTitles = new ArrayList<>();
+
+        menuTitles.add("For you");
+        menuTitles.add("Meat");
+        menuTitles.add("Slow Cooking");
+        menuTitles.add("Fish");
+        menuTitles.add("Breakfast");
+        menuTitles.add("Vegetarian");
+        menuTitles.add("Vegan");
+        menuTitles.add("Diet");
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerMenus.setLayoutManager(layoutManager);
+        HomeFragmentMenuAdapter adapter = new HomeFragmentMenuAdapter(getActivity(), menuTitles);
+        recyclerMenus.setAdapter(adapter);
+
     }
 }
 

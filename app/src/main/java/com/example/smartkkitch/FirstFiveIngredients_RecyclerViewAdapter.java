@@ -116,7 +116,6 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
         ImageView image;
         TextView name;
         TextView id;
-        TextView txtChecked;
         ImageButton btnCheckbox;
         CardView cardView;
 
@@ -127,7 +126,6 @@ public class FirstFiveIngredients_RecyclerViewAdapter extends RecyclerView.Adapt
             image = itemView.findViewById(R.id.imgImage);
             name = itemView.findViewById(R.id.txtName);
             id = itemView.findViewById(R.id.txtId);
-            txtChecked = itemView.findViewById(R.id.txtChecked);
             btnCheckbox = itemView.findViewById(R.id.btnCheckbox);
             cardView = itemView.findViewById(R.id.cardView);
         }

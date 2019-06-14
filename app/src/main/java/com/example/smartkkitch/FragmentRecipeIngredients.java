@@ -104,7 +104,9 @@ public class FragmentRecipeIngredients extends Fragment {
 
                                     IngredientRecipeAdapter ingredientRecipe = new IngredientRecipeAdapter(ingredientId, ingredientName, ingredientImageUrl, ingredientAmount, ingredientUnit,false);
 
-                                    mIngredientsList.add(ingredientRecipe);
+                                    if (!mIngredientsList.contains(ingredientRecipe)) {
+                                        mIngredientsList.add(ingredientRecipe);
+                                    }
 
                                 }
 
@@ -315,14 +317,6 @@ public class FragmentRecipeIngredients extends Fragment {
     private void initRecyclerView() {
 
         //TODO fix repetetive adding ingredients
-
-        Log.d(TAG, "Favorite Ingredients Size: " + mFavoriteIngredients.size());
-
-        for (IngredientRecipeAdapter ingredient: mIngredientsList){
-
-            Log.d(TAG, "Ingredient image changed: " + ingredient.isImageChanged());
-
-        }
 
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);

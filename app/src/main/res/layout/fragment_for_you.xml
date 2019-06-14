@@ -3,32 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#33B8B6B6"
+    android:background="#00B8B6B6"
     tools:context=".FragmentForYou">
 
-    <Button
-        android:id="@+id/btnMeat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="false"
-        android:layout_marginStart="250dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/meat" />
-
-    <Button
-        android:id="@+id/btnForYou"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="false"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/for_you" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerMenus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recipeRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/btnForYou"
-        android:layout_marginTop="10dp" />
+        android:layout_below="@id/recyclerMenus" />
 
 </RelativeLayout>

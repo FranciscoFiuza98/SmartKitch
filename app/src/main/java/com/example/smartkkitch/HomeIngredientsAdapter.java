@@ -54,7 +54,7 @@ public class HomeIngredientsAdapter extends RecyclerView.Adapter<HomeIngredients
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
         //Inflates layout with the ingredient layout
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.first_five_ingredients, viewGroup, false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.home_ingredient, viewGroup, false);
 
         firestore = FirebaseFirestore.getInstance();
 
@@ -86,7 +86,7 @@ public class HomeIngredientsAdapter extends RecyclerView.Adapter<HomeIngredients
         if (ingredient.isImageChanged()) {
             viewHolder.btnCheckbox.setImageResource(R.drawable.checkedfilled);
         } else {
-            viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
+            viewHolder.btnCheckbox.setImageResource(R.drawable.add);
         }
         //OnClick listener for each card
         viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
@@ -224,10 +224,8 @@ public class HomeIngredientsAdapter extends RecyclerView.Adapter<HomeIngredients
         ImageView image;
         TextView name;
         TextView id;
-        TextView txtChecked;
         ImageButton btnCheckbox;
         CardView cardView;
-        boolean imageChanged;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -236,11 +234,8 @@ public class HomeIngredientsAdapter extends RecyclerView.Adapter<HomeIngredients
             image = itemView.findViewById(R.id.imgImage);
             name = itemView.findViewById(R.id.txtName);
             id = itemView.findViewById(R.id.txtId);
-            txtChecked = itemView.findViewById(R.id.txtChecked);
             btnCheckbox = itemView.findViewById(R.id.btnCheckbox);
             cardView = itemView.findViewById(R.id.cardView);
-
-            imageChanged = false;
         }
     }
 

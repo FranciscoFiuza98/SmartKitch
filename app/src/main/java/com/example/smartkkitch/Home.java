@@ -76,7 +76,7 @@ public class Home extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         SectionsStatePagerAdapter adapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new FragmentForYou(), "For You"); // index 0
-        adapter.addFragment(new FragmentMeat(), "Meat"); //      index 1
+        //adapter.addFragment(new FragmentMeat(), "Meat"); //      index 1
         viewPager.setAdapter(adapter);
 
     }
