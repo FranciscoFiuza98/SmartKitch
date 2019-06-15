@@ -3,7 +3,9 @@ package com.example.smartkkitch;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
@@ -99,6 +101,10 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
         viewHolder.txtIngredientName.setText(ingredientName);
         viewHolder.txtIngredientAmount.setText(roundedAmount);
         viewHolder.txtIngredientUnit.setText(ingredientUnit);
+
+        if (i%2 == 0) {
+            viewHolder.recipeIngredientCard.setBackgroundColor(Color.parseColor("#F7F7F7"));
+        }
 
         if (ingredientRecipe.isImageChanged()) {
             viewHolder.btnCheckbox.setImageResource(R.drawable.checked);

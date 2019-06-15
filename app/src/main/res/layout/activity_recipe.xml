@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     tools:context=".RecipeActivity">
 
     <ImageView
@@ -40,6 +41,7 @@
         android:layout_centerHorizontal="false"
         android:layout_centerVertical="false"
         android:layout_marginTop="20dp"
+        android:fontFamily="@font/gothammedium"
         android:gravity="center_horizontal"
         android:textColor="#000000"
         android:textStyle="bold"

@@ -86,7 +86,7 @@ public class FragmentRecipePreparationAdapter extends RecyclerView.Adapter<Fragm
 
         //Sets step number and step description
 
-        viewHolder.txtStepNumber.setText(recipeNumber + ".");
+        viewHolder.txtStepNumber.setText("Step " + recipeNumber + ".");
         viewHolder.txtStepDescription.setText(recipeDescription);
 
 
