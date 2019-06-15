@@ -65,7 +65,11 @@ public class FragmentForYou extends Fragment {
 
                                 Recipe recipe = new Recipe(recipeId, recipeName, recipeImageUrl);
 
-                                mRecipes.add(recipe);
+                                if (mRecipes.size() < 50) {
+                                    mRecipes.add(recipe);
+                                } else {
+                                    break;
+                                }
                             }
 
                             checkRecipes();
@@ -98,7 +102,6 @@ public class FragmentForYou extends Fragment {
                                 String lastRecipeId = mRecipes.get(mRecipes.size() - 1).getId();
 
                                 if (recipe.getId().equals(lastRecipeId)) {
-                                    Log.d(TAG, "Initializing recycler view");
                                     initRecyclerView();
                                 }
                             }
@@ -111,12 +114,6 @@ public class FragmentForYou extends Fragment {
     private void initRecyclerView() {
 
         initMenusRecylerView();
-
-        while (mRecipes.size() > 30) {
-
-            mRecipes.remove(mRecipes.size() - 1);
-
-        }
 
         Log.d(TAG, "Recepies: " + mRecipes.size());
 
