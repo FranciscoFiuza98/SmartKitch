@@ -146,7 +146,7 @@ public class RecipeActivity extends AppCompatActivity {
 
                             Toast.makeText(RecipeActivity.this, "Recipe Removed", Toast.LENGTH_SHORT).show();
                             btnSaveRecipe.setText("Save Recipe");
-                            btnSaveRecipe.setBackgroundColor(Color.GREEN);
+                            btnSaveRecipe.setBackgroundColor(Color.parseColor("#8ACB88")); //Green
                             recipeNumberSavesChange(currentRecipe, "decrement");
 
                         }
@@ -182,7 +182,7 @@ public class RecipeActivity extends AppCompatActivity {
                                         public void onSuccess(Void aVoid) {
                                             Toast.makeText(RecipeActivity.this, "Recipe Saved", Toast.LENGTH_SHORT).show();
                                             btnSaveRecipe.setText("Remove Recipe");
-                                            btnSaveRecipe.setBackgroundColor(Color.RED);
+                                            btnSaveRecipe.setBackgroundColor(Color.parseColor("#c40007")); //Red
                                             recipeNumberSavesChange(currentRecipe, "increment");
                                         }
                                     })
@@ -242,63 +242,6 @@ public class RecipeActivity extends AppCompatActivity {
                 });
 
     }
-
-/*    private void incrementRecipeNumberSaves(final Recipe recipe) {
-
-        Log.d(TAG, "ID: " + recipe.getId());
-
-        firestore.collection("Recipes").document(recipe.getId())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-
-                            DocumentSnapshot result = task.getResult();
-                            Map<String, Object> savedRecipe = result.getData();
-
-                            try{
-                                String numberSaves = savedRecipe.get("numberSaves").toString();
-                                int numberSavesInt = Integer.parseInt(numberSaves);
-                                numberSavesInt++;
-
-                                final Map<String, Object> numberSavesMap = new HashMap<>();
-                                numberSavesMap.put("name", recipe.getName());
-                                numberSavesMap.put("imageUrl", recipe.getImageUrl());
-                                numberSavesMap.put("numberSaves", numberSavesInt);
-
-                                firestore.collection("Recipes").document(recipe.getId())
-                                        .set(numberSavesMap)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "Number Saves increment: " + numberSavesMap);
-                                            }
-                                        });
-
-                            }catch (NullPointerException exception) {
-
-                                final Map<String, Object> numberSavesMap = new HashMap<>();
-                                numberSavesMap.put("name", recipe.getName());
-                                numberSavesMap.put("imageUrl", recipe.getImageUrl());
-                                numberSavesMap.put("numberSaves", 1);
-
-                                firestore.collection("Recipes").document(recipe.getId())
-                                        .set(numberSavesMap)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "Number Saves new: " + numberSavesMap);
-                                            }
-                                        });
-
-                            }
-
-                        }
-                    }
-                });
-
-    }*/
 
     private void recipeNumberSavesChange(final Recipe recipe, final String type) {
 
@@ -369,69 +312,6 @@ public class RecipeActivity extends AppCompatActivity {
 
     }
 
-
-/*
-    private void decrementRecipeNumberSaves(final Recipe recipe) {
-
-        Log.d(TAG, "ID: " + recipe.getId());
-
-        firestore.collection("Recipes").document(recipe.getId())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-
-                            DocumentSnapshot result = task.getResult();
-                            Map<String, Object> savedRecipe = result.getData();
-
-                            try{
-                                String numberSaves = savedRecipe.get("numberSaves").toString();
-                                int numberSavesInt = Integer.parseInt(numberSaves);
-                                numberSavesInt--;
-
-                                final Map<String, Object> numberSavesMap = new HashMap<>();
-                                numberSavesMap.put("name", recipe.getName());
-                                numberSavesMap.put("imageUrl", recipe.getImageUrl());
-                                numberSavesMap.put("numberSaves", numberSavesInt);
-
-                                firestore.collection("Recipes").document(recipe.getId())
-                                        .set(numberSavesMap)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "Number Saves increment: " + numberSavesMap);
-                                            }
-                                        });
-
-                            }catch (NullPointerException exception) {
-
-                                final Map<String, Object> numberSavesMap = new HashMap<>();
-                                numberSavesMap.put("name", recipe.getName());
-                                numberSavesMap.put("imageUrl", recipe.getImageUrl());
-                                numberSavesMap.put("numberSaves", 1);
-
-                                firestore.collection("Recipes").document(recipe.getId())
-                                        .set(numberSavesMap)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "Number Saves new: " + numberSavesMap);
-                                            }
-                                        });
-
-                            }
-
-                        }
-                    }
-                });
-
-    }
-*/
-
-
-
-
     private void checkIfRecipeSaved() {
 
         Recipe currentRecipe = getRecipe();
@@ -451,10 +331,10 @@ public class RecipeActivity extends AppCompatActivity {
 
                             if (savedRecipe == null) {
                                 btnSaveRecipe.setText("Save Recipe");
-                                btnSaveRecipe.setBackgroundColor(Color.GREEN);
+                                btnSaveRecipe.setBackgroundColor(Color.parseColor("#8ACB88")); //Green
                             }else {
                                 btnSaveRecipe.setText("Remove Recipe");
-                                btnSaveRecipe.setBackgroundColor(Color.RED);
+                                btnSaveRecipe.setBackgroundColor(Color.parseColor("#c40007")); //Red
                             }
 
                         }

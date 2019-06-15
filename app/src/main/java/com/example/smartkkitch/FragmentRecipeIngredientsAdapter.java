@@ -29,10 +29,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.StringTokenizer;
 
 
 public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<FragmentRecipeIngredientsAdapter.ViewHolder>{
@@ -83,14 +85,19 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
 
         final String ingredientId= ingredientRecipe.getId();
         String ingredientName = ingredientRecipe.getName();
-        final String ingredientAmount = ingredientRecipe.getAmount();
+        String ingredientAmount  = ingredientRecipe.getAmount();
         String ingredientUnit= ingredientRecipe.getUnit();
+
+        StringTokenizer tokens = new StringTokenizer(ingredientAmount, ".");
+
+        String roundedAmount = tokens.nextToken().trim();
+
 
         //Sets ingredient ide, name, amount and unit
 
         viewHolder.txtRecipeIngredientId.setText(ingredientId);
         viewHolder.txtIngredientName.setText(ingredientName);
-        viewHolder.txtIngredientAmount.setText(ingredientAmount);
+        viewHolder.txtIngredientAmount.setText(roundedAmount);
         viewHolder.txtIngredientUnit.setText(ingredientUnit);
 
         if (ingredientRecipe.isImageChanged()) {

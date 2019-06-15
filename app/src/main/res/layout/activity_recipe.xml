@@ -26,7 +26,8 @@
         android:fontFamily="@font/gothammedium"
         android:gravity="center_horizontal|center_vertical"
         android:text="@string/save_recipe"
-        android:textColor="#000000"
+        android:textColor="#FFFFFF"
+        android:textColorHighlight="#8ACB89"
         android:textStyle="normal"
         tools:layout_editor_absoluteX="225dp"
         tools:layout_editor_absoluteY="258dp" />
