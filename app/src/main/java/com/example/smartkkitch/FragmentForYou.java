@@ -118,6 +118,8 @@ public class FragmentForYou extends Fragment {
 
         }
 
+        Log.d(TAG, "Recepies: " + mRecipes.size());
+
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recipeRecyclerView.setLayoutManager(layoutManager);

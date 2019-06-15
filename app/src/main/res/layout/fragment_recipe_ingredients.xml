@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FragmentRecipeIngredients">
+
+    <ImageView
+        android:id="@+id/imgServings"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_below="@id/txtSimilarRecipes"
+        android:layout_marginTop="20dp"
+        android:layout_toStartOf="@id/txtServings"
+        app:srcCompat="@drawable/servings"
+        android:contentDescription="TODO" />
 
     <TextView
         android:id="@+id/txtServings"
@@ -12,30 +23,10 @@
         android:layout_below="@id/txtSimilarRecipes"
         android:layout_alignStart="@id/txtSimilarRecipes"
         android:layout_alignParentEnd="false"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="25dp"
         android:fontFamily="@font/gothamlight"
         android:text="@string/_4_servings" />
-
-    <ImageView
-        android:id="@+id/imgServings"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_below="@id/txtSimilarRecipes"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="10dp"
-        android:layout_toStartOf="@id/txtServings"
-        android:contentDescription="@string/servings_icon"
-        android:src="@android:drawable/sym_def_app_icon" />
-
-    <ImageView
-        android:id="@+id/imgTime"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_below="@id/txtIngredients"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:contentDescription="@string/clock_icon"
-        android:src="@mipmap/ic_launcher_round" />
 
     <TextView
         android:id="@+id/txtTime"
@@ -86,10 +77,21 @@
         android:textColor="#000000"
         android:textSize="16sp" />
 
+    <ImageView
+        android:id="@+id/imgTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txtIngredients"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="20dp"
+        app:srcCompat="@drawable/time"
+        android:contentDescription="TODO" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fragmentIngredientsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/imgTime"
+        android:layout_below="@id/txtTime"
         android:layout_marginTop="20dp" />
+
 </RelativeLayout>

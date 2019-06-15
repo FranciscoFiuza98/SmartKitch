@@ -103,7 +103,10 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
         viewHolder.txtIngredientUnit.setText(ingredientUnit);
 
         if (i%2 == 0) {
+            Log.d(TAG, "I: " + i);
             viewHolder.recipeIngredientCard.setBackgroundColor(Color.parseColor("#F7F7F7"));
+        } else {
+            viewHolder.recipeIngredientCard.setBackgroundColor(Color.WHITE);
         }
 
         if (ingredientRecipe.isImageChanged()) {
@@ -131,6 +134,9 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
 
                                         QuerySnapshot result = task.getResult();
 
+                                        viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
+                                        ingredientRecipe.setImageChanged(false);
+
                                         if (result.size() > 5) {
                                             //Deletes ingredient from user's favorite ingredients collection
                                             firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredientRecipe.getId())
@@ -139,9 +145,6 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
                                                             Toast.makeText(context, "" + ingredientRecipe.getName() + " removed from favorite ingredients", Toast.LENGTH_SHORT).show();
-
-                                                            viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
-                                                            ingredientRecipe.setImageChanged(false);
 
                                                             decrementIngredientNumberSaves(ingredientRecipe);
                                                         }
@@ -154,6 +157,8 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                                                     });
                                         }else {
                                             Toast.makeText(context, "Can't have less than 5 favorite ingredients.", Toast.LENGTH_SHORT).show();
+                                            viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+                                            ingredientRecipe.setImageChanged(true);
                                         }
 
                                     }
@@ -165,15 +170,15 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
                     newIngredient.put("imageUrl", ingredientRecipe.getImageUrl());
                     newIngredient.put("name", ingredientRecipe.getName());
 
+                    viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
+                    ingredientRecipe.setImageChanged(true);
+
                     firestore.collection("Users").document(currentUser.getEmail()).collection("FavoriteIngredients").document(ingredientRecipe.getId())
                             .set(newIngredient)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     Toast.makeText(context, "" + ingredientRecipe.getName() + " added to favorite ingredients", Toast.LENGTH_SHORT).show();
-
-                                    viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
-                                    ingredientRecipe.setImageChanged(true);
 
                                     incrementIngredientNumberSaves(ingredientRecipe);
 

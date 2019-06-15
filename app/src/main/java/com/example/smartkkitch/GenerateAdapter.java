@@ -3,6 +3,7 @@ package com.example.smartkkitch;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -78,6 +79,12 @@ public class GenerateAdapter extends RecyclerView.Adapter<GenerateAdapter.ViewHo
             viewHolder.btnCheckbox.setImageResource(R.drawable.checked);
         } else {
             viewHolder.btnCheckbox.setImageResource(R.drawable.notchecked);
+        }
+
+        if (i%2 == 0) {
+            viewHolder.generateIngredientCard.setBackgroundColor(Color.parseColor("#F7F7F7"));
+        } else {
+            viewHolder.generateIngredientCard.setBackgroundColor(Color.WHITE);
         }
 
         //On click listener for the image button

@@ -3,6 +3,7 @@ package com.example.smartkkitch;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -89,6 +90,12 @@ public class FragmentRecipePreparationAdapter extends RecyclerView.Adapter<Fragm
         viewHolder.txtStepNumber.setText("Step " + recipeNumber + ".");
         viewHolder.txtStepDescription.setText(recipeDescription);
 
+        if (i%2 == 0) {
+            viewHolder.stepCard.setBackgroundColor(Color.parseColor("#F7F7F7"));
+        } else {
+            viewHolder.stepCard.setBackgroundColor(Color.WHITE);
+        }
+
 
     }
 
@@ -102,12 +109,14 @@ public class FragmentRecipePreparationAdapter extends RecyclerView.Adapter<Fragm
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         TextView txtStepNumber, txtStepDescription;
+        CardView stepCard;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             txtStepNumber = itemView.findViewById(R.id.txtStepNumber);
             txtStepDescription = itemView.findViewById(R.id.txtStepDescription);
+            stepCard = itemView.findViewById(R.id.stepCard);
         }
     }
 }
