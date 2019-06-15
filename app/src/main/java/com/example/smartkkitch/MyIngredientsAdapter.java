@@ -3,6 +3,7 @@ package com.example.smartkkitch;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -85,6 +86,12 @@ public class MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdap
         //Sets recipe information to the respective objects in the card
         viewHolder.ingredientName.setText(ingredientName);
         viewHolder.btnCross.setImageResource(R.drawable.cross);
+
+        if (position%2 == 0) {
+            viewHolder.generateIngredientCard.setBackgroundColor(Color.parseColor("#F7F7F7"));
+        } else {
+            viewHolder.generateIngredientCard.setBackgroundColor(Color.WHITE);
+        }
 
         //FIXME Fix crash when spamming remove button
 
@@ -195,6 +202,7 @@ public class MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdap
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView ingredientName;
+        CardView generateIngredientCard;
         ImageButton btnCross;
 
         public ViewHolder(@NonNull View itemView) {
@@ -202,6 +210,7 @@ public class MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdap
 
             ingredientName= itemView.findViewById(R.id.generateIngredientName);
             btnCross = itemView.findViewById(R.id.btnCheckbox);
+            generateIngredientCard = itemView.findViewById(R.id.generateIngredientCard);
         }
     }
 }
