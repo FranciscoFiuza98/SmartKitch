@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -77,10 +78,16 @@ public class GenerateActivity extends AppCompatActivity {
 
         ArrayList<String> selectedIngredients = adapter.getSelectedIngredients();
 
-        Intent intent = new Intent(this, GeneratedRecipesActivity.class);
-        intent.putExtra("selectedIngredients", selectedIngredients);
+        if (selectedIngredients.size() != 0) {
+            Intent intent = new Intent(this, GeneratedRecipesActivity.class);
+            intent.putExtra("selectedIngredients", selectedIngredients);
 
-        startActivity(intent);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Choose at least 1 ingredient!", Toast.LENGTH_SHORT).show();
+        }
+
+
 
     }
 

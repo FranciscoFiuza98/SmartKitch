@@ -12,7 +12,7 @@
 
         <TextView
             android:id="@+id/txtIngredientName"
-            android:layout_width="wrap_content"
+            android:layout_width="153dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="20dp"
@@ -27,6 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|center_vertical"
             android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
             android:fontFamily="@font/gothamlight"
             android:gravity="center"
@@ -38,9 +39,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|center_vertical"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="40dp"
             android:fontFamily="@font/gothamlight"
-            android:gravity="center"
             android:text="@string/g"
             android:textColor="#000000" />
 

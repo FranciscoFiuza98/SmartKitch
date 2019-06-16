@@ -14,7 +14,7 @@
     <item
         android:id="@+id/navigation_ingredients"
         android:icon="@drawable/ingredients"
-        android:title="@string/my_ingredients" />
+        android:title="@string/pantry" />
 
     <item
         android:id="@+id/navigation_recipes"

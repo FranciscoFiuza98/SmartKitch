@@ -45,7 +45,6 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
-    <string name="home">Home</string>
     <string name="recipes">Recipes</string>
     <string name="generate">Generate</string>
     <string name="my_recipes">My Recipes</string>
@@ -54,6 +53,8 @@
     <string name="my_ingredients">My Ingredients</string>
     <string name="login">Login</string>
     <string name="sign_in_to_continue">Sign in to continue</string>
+    <string name="home">Home</string>
+    <string name="pantry">Pantry</string>
 
 
 </resources>

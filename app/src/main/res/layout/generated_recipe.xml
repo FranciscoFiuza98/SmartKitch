@@ -2,7 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="20dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginRight="20dp">
 
     <android.support.v7.widget.CardView
         android:id="@+id/generatedRecipeCard"
@@ -19,9 +22,10 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/txtMissed"
                 android:layout_alignEnd="@id/txtMissed"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="50dp"
+                android:layout_marginTop="11dp"
+                android:layout_marginEnd="63dp"
                 android:layout_marginBottom="10dp"
+                android:fontFamily="@font/gothamlight"
                 android:text="@string/_100" />
 
             <TextView
@@ -33,16 +37,18 @@
                 android:layout_marginStart="65dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
+                android:fontFamily="@font/gothamlight"
                 android:text="@string/_100" />
 
             <TextView
                 android:id="@+id/txtMissed"
-                android:layout_width="wrap_content"
+                android:layout_width="153dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/imgRecipeImage"
-                android:layout_marginStart="170dp"
+                android:layout_marginStart="128dp"
                 android:layout_marginTop="60dp"
                 android:layout_toEndOf="@id/txtIngredientsUsed"
+                android:fontFamily="@font/gothamlight"
                 android:text="@string/ingredients_missed"
                 android:textStyle="italic" />
 
@@ -54,17 +60,16 @@
                 android:layout_centerVertical="false"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="60dp"
+                android:fontFamily="@font/gothamlight"
                 android:text="@string/ingredients_used"
                 android:textStyle="italic" />
 
             <ImageView
                 android:id="@+id/imgRecipeImage"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="20dp"
+                android:layout_height="250dp"
                 android:contentDescription="@string/recipe_image"
+                android:scaleType="fitXY"
                 tools:srcCompat="@tools:sample/avatars" />
 
             <TextView
@@ -76,6 +81,7 @@
                 android:layout_gravity="bottom|center_horizontal"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="20dp"
+                android:fontFamily="@font/gothammedium"
                 android:maxLength="50"
                 android:text="@string/recipe_name"
                 android:textColor="#000000"
