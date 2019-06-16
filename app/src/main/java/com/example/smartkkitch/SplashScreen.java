@@ -31,13 +31,14 @@ public class SplashScreen extends AppCompatActivity {
             gifImageView.startAnimation();
         }
         catch (IOException ex) {
-
+            ex.printStackTrace();
         }
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 SplashScreen.this.startActivity(new Intent(SplashScreen.this, Login.class));
+                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
                 SplashScreen.this.finish();
             }
         }, 3000);
