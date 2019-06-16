@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -52,6 +53,7 @@ public class Login extends AppCompatActivity {
         //Gets instance of email and password inputs
         txtEmail = findViewById(R.id.txtEmail);
         txtPassword = findViewById(R.id.txtPassword);
+        txtPassword.setTransformationMethod(new PasswordTransformationMethod());
 
     }
 
