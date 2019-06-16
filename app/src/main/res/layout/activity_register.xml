@@ -13,7 +13,7 @@
         android:layout_below="@id/createAccount"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="28dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:textColorHint="#3F3F3F">
@@ -22,8 +22,10 @@
             android:id="@+id/txtName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/textInputLayout3"
+            android:layout_alignTop="@+id/textInputLayout3"
             android:layout_marginTop="10dp"
-            android:fontFamily="@font/gothammedium"
+            android:fontFamily="@font/gothamlight"
             android:hint="@string/name"
             android:textColor="#3F3F3F" />
     </android.support.design.widget.TextInputLayout>
@@ -35,7 +37,7 @@
         android:layout_below="@id/textInputLayout3"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="41dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:textColorHint="#3F3F3F">
@@ -44,7 +46,7 @@
             android:id="@+id/txtEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/gothammedium"
+            android:fontFamily="@font/gothamlight"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:textColor="#3F3F3F" />
@@ -66,9 +68,8 @@
             android:id="@+id/txtPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/gothammedium"
+            android:fontFamily="@font/gothamlight"
             android:hint="@string/password"
-            android:inputType="textPassword"
             android:textColor="#3F3F3F" />
     </android.support.design.widget.TextInputLayout>
 
@@ -79,7 +80,7 @@
         android:layout_below="@id/textInputLayout5"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="31dp"
+        android:layout_marginTop="33dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:textColorHint="#3F3F3F">
@@ -88,9 +89,8 @@
             android:id="@+id/txtRepeatPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/gothammedium"
+            android:fontFamily="@font/gothamlight"
             android:hint="@string/repeat_password"
-            android:inputType="textPassword"
             android:textColor="#3F3F3F" />
     </android.support.design.widget.TextInputLayout>
 
@@ -111,10 +111,10 @@
 
     <ImageView
         android:id="@+id/imageView3"
-        android:layout_width="201dp"
-        android:layout_height="246dp"
+        android:layout_width="186dp"
+        android:layout_height="230dp"
         android:layout_centerHorizontal="true"
-        app:srcCompat="@drawable/logo" />
+        app:srcCompat="@drawable/ic_logo" />
 
     <TextView
         android:id="@+id/createAccount"
@@ -122,6 +122,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/imageView3"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="9dp"
         android:fontFamily="@font/gothammedium"
         android:text="Create Account"
         android:textColor="#3F3F3F"
