@@ -62,67 +62,75 @@ public class Login extends AppCompatActivity {
         email = txtEmail.getText().toString();
         password = txtPassword.getText().toString();
 
-        //Attempts to sign in user
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        //If the sign up is successful makes a toast informing the user and starts the WelcomeScreen Activity
-                        if (task.isSuccessful()) {
+        Log.d(TAG, "Email: " + email);
+        Log.d(TAG, "Password: " + password);
 
-                            final FirebaseUser user = mAuth.getCurrentUser();
+        if (email.equals("") || password.equals("")) {
+            Toast.makeText(this, "Enter your email and password", Toast.LENGTH_SHORT).show();
+        } else {
+            //Attempts to sign in user
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            //If the sign up is successful makes a toast informing the user and starts the WelcomeScreen Activity
+                            if (task.isSuccessful()) {
 
-                            //Gets firestore instance
-                            FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                                final FirebaseUser user = mAuth.getCurrentUser();
 
-                            //Gets Users collection from firestore and checks if user exists in the collection
-                            firestore.collection("Users")
-                                    .get()
-                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()) {
-                                                for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                //Gets firestore instance
+                                FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-                                                    //Checks if user exists in collection, if exists starts Home activity
-                                                    String userEmail = document.getId();
-                                                    if (email.equals(userEmail)) {
-                                                        userExists = true;
-                                                        Intent intent = new Intent(getBaseContext(), Home.class);
+                                //Gets Users collection from firestore and checks if user exists in the collection
+                                firestore.collection("Users")
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+
+                                                        //Checks if user exists in collection, if exists starts Home activity
+                                                        String userEmail = document.getId();
+                                                        if (email.equals(userEmail)) {
+                                                            userExists = true;
+                                                            Intent intent = new Intent(getBaseContext(), Home.class);
+                                                            startActivity(intent);
+                                                            finish();
+                                                        }
+
+                                                    }
+
+                                                    //If user doesn't exist in firebase collection, starts WelcomeScreen activity
+                                                    assert user != null;
+                                                    if (!userExists) {
+                                                        String name = user.getDisplayName();
+                                                        Intent intent = new Intent(getApplicationContext(), WelcomeScreen.class);
+                                                        intent.putExtra("name", name);
+                                                        intent.putExtra("email", email);
+
                                                         startActivity(intent);
                                                         finish();
                                                     }
 
+                                                } else {
+                                                    Log.w(TAG, "Error getting documents.", task.getException());
                                                 }
-
-                                                //If user doesn't exist in firebase collection, starts WelcomeScreen activity
-                                                assert user != null;
-                                                if (!userExists) {
-                                                    String name = user.getDisplayName();
-                                                    Intent intent = new Intent(getApplicationContext(), WelcomeScreen.class);
-                                                    intent.putExtra("name", name);
-                                                    intent.putExtra("email", email);
-
-                                                    startActivity(intent);
-                                                    finish();
-                                                }
-
-                                            } else {
-                                                Log.w(TAG, "Error getting documents.", task.getException());
                                             }
-                                        }
-                                    });
+                                        });
 
 
 
 
-                            //If the sign in was not successful, makes a toast for the user with the failure reason
-                        } else {
+                                //If the sign in was not successful, makes a toast for the user with the failure reason
+                            } else {
 
-                            Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            }
                         }
-                    }
-                });
+                    });
+        }
+
     }
 
     //Function called on Register button click

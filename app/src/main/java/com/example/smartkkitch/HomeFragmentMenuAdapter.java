@@ -70,7 +70,7 @@ public class HomeFragmentMenuAdapter extends RecyclerView.Adapter<HomeFragmentMe
 
                 if (!menuTitle.equals("For you")) {
 
-                    Toast.makeText(context, "Comming Soon!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Coming Soon!", Toast.LENGTH_SHORT).show();
                 }
 
             }
