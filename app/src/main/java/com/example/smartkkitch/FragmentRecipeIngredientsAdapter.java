@@ -99,8 +99,14 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
 
         viewHolder.txtRecipeIngredientId.setText(ingredientId);
         viewHolder.txtIngredientName.setText(ingredientName);
-        viewHolder.txtIngredientAmount.setText(roundedAmount);
         viewHolder.txtIngredientUnit.setText(ingredientUnit);
+
+        if (roundedAmount.equals("0")) {
+            viewHolder.txtIngredientAmount.setText(ingredientAmount);
+        }else {
+            viewHolder.txtIngredientAmount.setText(roundedAmount);
+        }
+        
 
         if (i%2 == 0) {
             Log.d(TAG, "I: " + i);

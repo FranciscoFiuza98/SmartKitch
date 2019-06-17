@@ -237,7 +237,7 @@ public class FragmentRecipeIngredients extends Fragment {
 
                     }
 
-                    initRecyclerView();
+                    getUserFavoriteIngredients();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
