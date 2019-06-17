@@ -34,7 +34,9 @@ public class FragmentForYou extends Fragment {
 
     //Lists for recipe information and Recipe object
     private ArrayList<Recipe> mRecipes = new ArrayList<>();
-    private ArrayList<Recipe> mRemoveRecipes = new ArrayList<>();
+    private ArrayList<Recipe> mRecipesWithSteps = new ArrayList<>();
+
+    private int count = 0;
 
     private RecyclerView recipeRecyclerView;
     private RecyclerView recyclerMenus;
@@ -82,6 +84,8 @@ public class FragmentForYou extends Fragment {
 
     private void checkRecipes() {
 
+        final String lastRecipeId = mRecipes.get(mRecipes.size() - 1).getId();
+
         for (int i = 0; i < mRecipes.size(); i++) {
 
             final Recipe recipe = mRecipes.get(i);
@@ -95,15 +99,20 @@ public class FragmentForYou extends Fragment {
 
                                 QuerySnapshot result = task.getResult();
 
-                                if (result.size() == 1) {
-                                    mRemoveRecipes.add(recipe);
+                                if (result.size() != 1) {
+                                    mRecipesWithSteps.add(recipe);
                                 }
-
-                                String lastRecipeId = mRecipes.get(mRecipes.size() - 1).getId();
 
                                 if (recipe.getId().equals(lastRecipeId)) {
+
+                                    Log.d(TAG, "Initializing recycler view");
+
                                     initRecyclerView();
                                 }
+
+                                count++;
+
+                                Log.d(TAG, "Count:" + count);
                             }
                         }
                     });
@@ -115,12 +124,13 @@ public class FragmentForYou extends Fragment {
 
         initMenusRecylerView();
 
-        Log.d(TAG, "Recepies: " + mRecipes.size());
+        Log.d(TAG, "Total recipes: " + mRecipes.size());
+        Log.d(TAG, "Recipes with steps: " + mRecipesWithSteps.size());
 
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recipeRecyclerView.setLayoutManager(layoutManager);
-        HomeRecipeRecyclerViewAdapter adapter = new HomeRecipeRecyclerViewAdapter(getActivity(), mRecipes);
+        HomeRecipeRecyclerViewAdapter adapter = new HomeRecipeRecyclerViewAdapter(getActivity(), mRecipesWithSteps);
         recipeRecyclerView.setAdapter(adapter);
 
 
