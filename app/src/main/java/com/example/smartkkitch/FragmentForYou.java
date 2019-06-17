@@ -115,7 +115,6 @@ public class FragmentForYou extends Fragment {
         }
     }
 
-    //TODO Make recycler view load faster (could be request to database that is taking so long)
     private void initRecyclerView() {
 
         initMenusRecylerView();

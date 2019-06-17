@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-//TODO make recipe images the same size
 public class FragmentRecipeSimilarRecipes extends Fragment {
 
     private static final String TAG = "FragmentRecipeSimilarRe";
@@ -167,7 +166,6 @@ public class FragmentRecipeSimilarRecipes extends Fragment {
 
                 }
 
-                //TODO save similar recipes in the Recipes collection, change the current saving to save only the id of the similar recipes
                 for (Recipe recipe : mRecipes) {
 
                     //Gets recipe information from recipe object

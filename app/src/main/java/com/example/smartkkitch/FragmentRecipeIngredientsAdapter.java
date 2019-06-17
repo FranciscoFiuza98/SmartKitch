@@ -106,7 +106,7 @@ public class FragmentRecipeIngredientsAdapter extends RecyclerView.Adapter<Fragm
         }else {
             viewHolder.txtIngredientAmount.setText(roundedAmount);
         }
-        
+
 
         if (i%2 == 0) {
             Log.d(TAG, "I: " + i);

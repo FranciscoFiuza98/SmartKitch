@@ -52,9 +52,13 @@ public class FragmentRecipeIngredients extends Fragment {
 
     private RecyclerView mRecyclerView;
 
+    private int ingredientCount = 0;
+
     private FirebaseFirestore firestore;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
+
+    private FragmentRecipeIngredientsAdapter adapter;
 
     @Nullable
     @Override
@@ -77,8 +81,44 @@ public class FragmentRecipeIngredients extends Fragment {
         mRecyclerView = view.findViewById(R.id.fragmentIngredientsRecyclerView);
 
         //Gets recipe used in home activity
-        final Recipe recipe = ((RecipeActivity)getActivity()).getRecipe();
+        final Recipe recipe = ((RecipeActivity) getActivity()).getRecipe();
 
+        if (ingredientCount == 0) {
+            getRecipeIngredients(recipe);
+        } else {
+            initRecyclerView();
+        }
+
+
+
+        //Ingredient text on click listener
+        txtIngredients.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((RecipeActivity) getActivity()).setViewPager(0);
+            }
+        });
+
+        //Preparation text on click listener
+        txtPreparation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((RecipeActivity) getActivity()).setViewPager(1);
+            }
+        });
+
+        //Similar text on click listener
+        txtSimiliarRecipes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((RecipeActivity) getActivity()).setViewPager(2);
+            }
+        });
+
+        return view;
+    }
+
+    private void getRecipeIngredients(final Recipe recipe) {
         firestore.collection("Recipes").document(recipe.getId()).collection("Ingredients")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -90,10 +130,10 @@ public class FragmentRecipeIngredients extends Fragment {
 
                             if (result.size() == 0) {
 
-                                getRecipeIngredients(recipe);
+                                getRecipeIngredientsAPI(recipe);
 
-                            }else {
-                                for (QueryDocumentSnapshot document: result) {
+                            } else {
+                                for (QueryDocumentSnapshot document : result) {
                                     Map<String, Object> ingredient = document.getData();
 
                                     String ingredientId = document.getId();
@@ -102,56 +142,25 @@ public class FragmentRecipeIngredients extends Fragment {
                                     String ingredientImageUrl = ingredient.get("imageUrl").toString();
                                     String ingredientUnit = ingredient.get("unit").toString();
 
-                                    IngredientRecipeAdapter ingredientRecipe = new IngredientRecipeAdapter(ingredientId, ingredientName, ingredientImageUrl, ingredientAmount, ingredientUnit,false);
+                                    IngredientRecipeAdapter ingredientRecipe = new IngredientRecipeAdapter(ingredientId, ingredientName, ingredientImageUrl, ingredientAmount, ingredientUnit, false);
 
-                                    if (!mIngredientsList.contains(ingredientRecipe)) {
-                                        mIngredientsList.add(ingredientRecipe);
-                                    }
+                                    mIngredientsList.add(ingredientRecipe);
+
+                                    Log.d(TAG, "Adding ingredient: " + mIngredientsList.size());
 
                                 }
 
                                 getUserFavoriteIngredients();
                             }
 
-                        }else {
+                        } else {
                             Log.w(TAG, "Error getting documents", task.getException());
                         }
                     }
                 });
-
-
-
-
-
-
-        //Ingredient text on click listener
-        txtIngredients.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((RecipeActivity)getActivity()).setViewPager(0);
-            }
-        });
-
-        //Preparation text on click listener
-        txtPreparation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((RecipeActivity)getActivity()).setViewPager(1);
-            }
-        });
-
-        //Similar text on click listener
-        txtSimiliarRecipes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((RecipeActivity)getActivity()).setViewPager(2);
-            }
-        });
-
-        return view;
     }
 
-    private void getRecipeIngredients(final Recipe recipe) {
+    private void getRecipeIngredientsAPI(final Recipe recipe) {
 
         //Url for API request
         String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/" + recipe.getId() + "/information";
@@ -167,7 +176,6 @@ public class FragmentRecipeIngredients extends Fragment {
                     //Gets ingredients used in recipe from response
                     JSONArray arrayIngredients = response.getJSONArray("extendedIngredients");
 
-                    //TODO Fix amount and unit overlapping, try rounding up the amount number
                     //Iterates over ingredients array and adds its information to the database
                     for (int i = 0; i < arrayIngredients.length(); i++) {
 
@@ -188,7 +196,7 @@ public class FragmentRecipeIngredients extends Fragment {
                     }
 
                     // Iterates over Ingredients List array and adds the ingredients to Ingredients Collection and Recipe's Ingredients Collection
-                    for (final IngredientRecipeAdapter ingredientRecipe: mIngredientsList) {
+                    for (final IngredientRecipeAdapter ingredientRecipe : mIngredientsList) {
 
                         final Map<String, Object> ingredientMap = new HashMap<>();
                         ingredientMap.put("name", ingredientRecipe.getName());
@@ -216,7 +224,6 @@ public class FragmentRecipeIngredients extends Fragment {
                         recipeIngredientMap.put("imageUrl", ingredientRecipe.getImageUrl());
                         recipeIngredientMap.put("amount", ingredientRecipe.getAmount());
                         recipeIngredientMap.put("unit", ingredientRecipe.getUnit());
-
 
 
                         //Saves ingredients in the recipe Ingredients collection
@@ -280,24 +287,20 @@ public class FragmentRecipeIngredients extends Fragment {
                                 Map<String, Object> data = document.getData();
 
                                 //Gets ingredient ID
-                                String id= document.getId();
+                                String id = document.getId();
                                 String name = data.get("name").toString();
                                 String imageUrl = data.get("imageUrl").toString();
 
                                 Ingredient favoriteIngredient = new Ingredient(id, name, imageUrl);
 
-                                Log.d(TAG, "Adding ingredient to favorites ");
-
                                 mFavoriteIngredients.add(favoriteIngredient);
                             }
 
-                            for (Ingredient favoriteIngredient: mFavoriteIngredients) {
+                            for (Ingredient favoriteIngredient : mFavoriteIngredients) {
 
-                                for (IngredientRecipeAdapter ingredient: mIngredientsList) {
+                                for (IngredientRecipeAdapter ingredient : mIngredientsList) {
 
                                     if (favoriteIngredient.getId().equals(ingredient.getId())) {
-
-                                        Log.d(TAG, "Changing to true: " + ingredient.getName());
 
                                         ingredient.setImageChanged(true);
                                     }
@@ -316,12 +319,14 @@ public class FragmentRecipeIngredients extends Fragment {
 
     private void initRecyclerView() {
 
-        //TODO fix repetetive adding ingredients
-
         //Creates layout manager, adapter and sets them to the RecyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(layoutManager);
-        FragmentRecipeIngredientsAdapter adapter = new FragmentRecipeIngredientsAdapter(getActivity(), mIngredientsList, mFavoriteIngredients);
+        adapter = new FragmentRecipeIngredientsAdapter(getActivity(), mIngredientsList, mFavoriteIngredients);
+        ingredientCount = adapter.getItemCount();
+
+        Log.d(TAG, "Ingredient Count: " + ingredientCount);
+
         mRecyclerView.setAdapter(adapter);
 
     }

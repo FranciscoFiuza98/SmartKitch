@@ -93,8 +93,6 @@ public class MyIngredientsAdapter extends RecyclerView.Adapter<MyIngredientsAdap
             viewHolder.generateIngredientCard.setBackgroundColor(Color.WHITE);
         }
 
-        //FIXME Fix crash when spamming remove button
-
         //On click listener for the button
         viewHolder.btnCross.setOnClickListener(new View.OnClickListener() {
             @Override

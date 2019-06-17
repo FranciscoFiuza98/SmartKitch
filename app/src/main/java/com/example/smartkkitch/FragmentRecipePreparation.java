@@ -201,7 +201,6 @@ public class FragmentRecipePreparation extends Fragment {
 
                     initRecyclerView();
 
-                    //TODO put an empty state in the preparation fragment when there are no steps to show
                 } catch (JSONException e) {
                     e.printStackTrace();
 
